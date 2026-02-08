@@ -1,0 +1,47 @@
+<div class="hud">
+    @if (!gps.currentPosition()) {
+    <div class="loading">{{ TEXT.LOADING_GPS }}</div>
+    } @else {
+    <div class="status">
+        {{ TEXT.GPS_ACTIVE }} | {{ TEXT.POIS_JUNTOS }}: {{ poiService.visiblePois().length }}
+    </div>
+    }
+</div>
+
+<button (click)="toggleMap()" class="map-toggle">
+    {{ showMap() ? TEXT.MAP_HIDE : TEXT.MAP_SHOW }}
+</button>
+
+<div class="map-layer">
+    @defer (when showMap()) { <app-map-debug /> }
+</div>
+
+<div class="ar-layer">
+    @defer (on viewport; prefetch on idle) {
+    <a-scene embedded vr-mode-ui="enabled: false">
+        <a-entity camera look-controls locar-camera></a-entity>
+
+        @for (poi of poiService.visiblePois(); track poi.id) {
+        <a-entity [attr.locar-entity-place]="getLocationString(poi)">
+            <a-text [attr.value]="getLabel(poi)" align="center" scale="5 5 5" position="0 2.5 0" color="#FFFFFF"
+                look-at="[camera]">
+            </a-text>
+
+            @if (poi.model) {
+            <a-entity [attr.gltf-model]="poi.model" scale="1 1 1" look-at="[camera]"></a-entity>
+            } @else {
+            <a-box color="red" scale="2 2 2" look-at="[camera]"></a-box>
+            }
+        </a-entity>
+        }
+    </a-scene>
+    } @placeholder {
+    <div class="placeholder">
+        <div class="compass-placeholder">{{ TEXT.INITIALIZE_AR }}</div>
+    </div>
+    } @loading {
+    <div class="loading-overlay">
+        <p>{{ TEXT.LOADING_ENGINE }}</p>
+    </div>
+    }
+</div>
