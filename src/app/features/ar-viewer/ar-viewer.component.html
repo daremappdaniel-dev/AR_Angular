@@ -8,17 +8,6 @@
     }
 </div>
 
-<button (click)="toggleMap()" class="map-toggle">
-    {{ showMap() ? TEXT.MAP_HIDE : TEXT.MAP_SHOW }}
-</button>
-
-<div class="map-layer">
-    @defer (when showMap()) {
-    <app-map-debug [currentPos]="gps.currentPosition()" [pois]="poiService.poisWithDistance()">
-    </app-map-debug>
-    }
-</div>
-
 <div class="ar-layer">
     @defer (on viewport; prefetch on idle) {
     <a-scene #scene embedded vr-mode-ui="enabled: false" locar-webcam>

@@ -3,7 +3,7 @@ export class MockGeolocation {
     private static watchers = new Map<number, PositionCallback>();
     private static currentPos = {
         coords: {
-            latitude: 40.99520, // Tu posición inicial alejada
+            latitude: 40.99520,
             longitude: -5.719779,
             accuracy: 10,
             altitude: null,
@@ -15,7 +15,6 @@ export class MockGeolocation {
     };
 
     static install() {
-        console.warn('⚠️ MOCK GPS ACTIVADO: Ignorando sensores reales del navegador.');
 
         if (!navigator.geolocation) {
             (navigator as any).geolocation = {};
@@ -29,7 +28,6 @@ export class MockGeolocation {
             const id = this.watchIdCounter++;
             this.watchers.set(id, success);
 
-            // Emitir posición inicial inmediatamente
             setTimeout(() => success(this.currentPos as any), 100);
 
             return id;
@@ -39,12 +37,10 @@ export class MockGeolocation {
             this.watchers.delete(id);
         };
 
-        // Exponer método global para movernos desde la consola del navegador
         (window as any).teleport = (lat: number, lng: number) => {
             this.currentPos.coords.latitude = lat;
             this.currentPos.coords.longitude = lng;
             this.watchers.forEach(cb => cb(this.currentPos as any));
-            console.log(`🚀 Teletransportado a: ${lat}, ${lng}`);
         };
     }
 }

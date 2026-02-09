@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { PoiService } from '../../core/services/poi.service';
 import { GpsService } from '../../core/services/gps.service';
-import { MapDebugComponent } from '../map-debug/map-debug.component';
 import { AR_TEXT } from '../../core/constants/ar-text.constants';
 import { AR_LOGS } from '../../core/constants/ar-logs.constants';
 import { GeoUtils } from '../../core/utils/geo-utils';
@@ -21,7 +20,6 @@ import { GeoUtils } from '../../core/utils/geo-utils';
 @Component({
   selector: 'app-ar-viewer',
   standalone: true,
-  imports: [MapDebugComponent],
   templateUrl: './ar-viewer.component.html',
   styleUrl: './ar-viewer.component.css',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -30,7 +28,6 @@ import { GeoUtils } from '../../core/utils/geo-utils';
 export class ArViewerComponent implements AfterViewInit, OnDestroy {
   protected readonly poiService = inject(PoiService);
   protected readonly gps = inject(GpsService);
-  protected readonly showMap = signal(false);
   protected readonly TEXT = AR_TEXT;
 
   @ViewChild('scene') sceneRef?: ElementRef;
@@ -48,7 +45,6 @@ export class ArViewerComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  protected toggleMap = () => this.showMap.update(v => !v);
 
   async ngAfterViewInit() {
     await this.ngZone.runOutsideAngular(async () => {
