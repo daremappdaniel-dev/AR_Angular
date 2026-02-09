@@ -29,9 +29,6 @@
               "aframe",
               "locar",
               "locar-aframe"
-            ],
-            "externalDependencies": [
-              "three"
             ]
           },
           "configurations": {

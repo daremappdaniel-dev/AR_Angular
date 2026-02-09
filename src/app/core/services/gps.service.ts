@@ -1,11 +1,13 @@
 import { Injectable, signal, OnDestroy, inject, NgZone } from '@angular/core';
 import { GPS_ERROR_CODES } from '../constants/gps-errors.constants';
+import { ArSetupService } from './ar-setup.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class GpsService implements OnDestroy {
     private readonly ngZone = inject(NgZone);
+    private readonly arSetup = inject(ArSetupService);
 
     readonly currentPosition = signal<google.maps.LatLngLiteral | null>(null);
     readonly error = signal<string | null>(null);
@@ -14,6 +16,12 @@ export class GpsService implements OnDestroy {
 
     constructor() {
         this.watchPosition();
+    }
+
+    private updateLocAR(lat: number, lng: number) {
+        if (this.arSetup.locationBased) {
+            this.arSetup.locationBased.fakeGps(lng, lat);
+        }
     }
 
     private watchPosition() {
@@ -25,10 +33,13 @@ export class GpsService implements OnDestroy {
         this.ngZone.runOutsideAngular(() => {
             this.watchId = navigator.geolocation.watchPosition(
                 (position) => {
+                    const { latitude, longitude } = position.coords;
+                    this.updateLocAR(latitude, longitude);
+
                     this.ngZone.run(() => {
                         this.currentPosition.set({
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
+                            lat: latitude,
+                            lng: longitude
                         });
                         this.error.set(null);
                     });

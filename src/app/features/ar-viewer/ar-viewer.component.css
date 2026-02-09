@@ -6,6 +6,7 @@
   position: relative;
   background: #000;
 }
+
 .ar-layer {
   position: absolute;
   top: 0;
@@ -14,10 +15,12 @@
   height: 100%;
   z-index: 1;
 }
+
 a-scene {
   height: 100%;
   width: 100%;
 }
+
 .hud {
   position: absolute;
   top: 10px;
@@ -31,6 +34,7 @@ a-scene {
   font-family: "Segoe UI", Roboto, sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 .map-layer {
   position: absolute;
   top: 10px;
@@ -39,12 +43,15 @@ a-scene {
   width: 150px;
   height: 150px;
 }
+
 .loading {
   color: #ffeb3b;
 }
+
 .status {
   color: #4caf50;
 }
+
 .map-toggle {
   position: absolute;
   bottom: 20px;

@@ -1,11 +1,8 @@
-import { Injectable, inject, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Injectable, inject, computed, resource } from '@angular/core';
 import { GpsService } from './gps.service';
 import { GeoService } from './geo.service';
 import { PointOfInterest } from '../../shared/models/poi.model';
 import { PoiView } from '../../shared/models/poi-view.model';
-import { catchError, of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PoiService {
@@ -14,19 +11,23 @@ export class PoiService {
         VISIBLE_RADIUS: 1000
     };
 
-    private readonly http = inject(HttpClient);
     private readonly gps = inject(GpsService);
     private readonly geo = inject(GeoService);
 
-    private readonly pois$ = this.http.get<PointOfInterest[]>(this.CONFIG.DATA_URL).pipe(
-        catchError(() => of([]))
-    );
-
-    private readonly poisSignal = toSignal(this.pois$, { initialValue: [] });
+    readonly poisResource = resource<PointOfInterest[], unknown>({
+        loader: async () => {
+            const response = await fetch(this.CONFIG.DATA_URL);
+            const data: any[] = await response.json();
+            return data.map(p => ({
+                ...p,
+                lng: p.lng || p.lon
+            }));
+        }
+    });
 
     readonly poisWithDistance = computed<PoiView[]>(() => {
         const userPos = this.gps.currentPosition();
-        const currentPois = this.poisSignal();
+        const currentPois = this.poisResource.value() ?? [];
 
         if (!userPos) return [];
 

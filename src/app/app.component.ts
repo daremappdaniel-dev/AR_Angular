@@ -1,15 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { ArSceneComponent } from './features/ar-scene/ar-scene.component';
+import { ArViewerComponent } from './features/ar-viewer/ar-viewer.component';
 import { ToastComponent } from './shared/ui/toast/toast.component';
 
 @Component({
-    selector: 'app-root',
-    standalone: true,
-    imports: [RouterOutlet, ArSceneComponent, ToastComponent],
-    template: `
+  selector: 'app-root',
+  standalone: true,
+  imports: [ArViewerComponent, ToastComponent],
+  template: `
       <app-toast></app-toast>
-      <app-ar-scene></app-ar-scene>
+      <app-ar-viewer></app-ar-viewer>
     `
 })
 export class AppComponent { }
