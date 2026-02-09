@@ -24,7 +24,12 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "aframe",
+              "locar",
+              "locar-aframe"
+            ]
           },
           "configurations": {
             "production": {
@@ -64,5 +69,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }

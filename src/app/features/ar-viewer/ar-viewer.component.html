@@ -1,0 +1,26 @@
+<div class="hud">
+    @if (!gps.currentPosition()) {
+    <div class="loading">{{ TEXT.LOADING_GPS }}</div>
+    } @else {
+    <div class="status">
+        {{ TEXT.GPS_ACTIVE }} | {{ TEXT.POIS_JUNTOS }}: {{ poiService.visiblePois().length }}
+    </div>
+    }
+</div>
+
+<div class="ar-layer">
+    @defer (on viewport; prefetch on idle) {
+    <a-scene #scene embedded vr-mode-ui="enabled: false" locar-webcam>
+        <a-entity #camera camera look-controls locar-camera></a-entity>
+    </a-scene>
+    } @placeholder {
+
+    <div class="placeholder">
+        <div class="compass-placeholder">{{ TEXT.INITIALIZE_AR }}</div>
+    </div>
+    } @loading {
+    <div class="loading-overlay">
+        <p>{{ TEXT.LOADING_ENGINE }}</p>
+    </div>
+    }
+</div>
