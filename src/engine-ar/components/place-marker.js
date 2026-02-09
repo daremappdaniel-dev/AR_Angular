@@ -64,7 +64,7 @@ AFRAME.registerComponent('place-marker', {
     onNear: function () {
         if (!this.isNear) {
             this.el.setAttribute('scale', '15 15 15');
-            this.el.setAttribute('visible', true); // Aseguramos visibilidad
+            this.el.setAttribute('visible', true);
             this.isNear = true;
         }
     },
