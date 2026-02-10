@@ -13,5 +13,17 @@ export const DEFAULT_POIS: PointOfInterest[] = [
         lat: POI_CONSTANTS.SOUTH_POINT.LAT,
         lng: POI_CONSTANTS.SOUTH_POINT.LNG,
         model: POI_CONSTANTS.DEFAULT_MODEL
+    },
+    {
+        name: 'Punto Este (Curva)',
+        lat: 40.99524,
+        lng: -5.719500,
+        model: POI_CONSTANTS.DEFAULT_MODEL
+    },
+    {
+        name: 'Punto Oeste (Curva)',
+        lat: 40.99530,
+        lng: -5.720000,
+        model: POI_CONSTANTS.DEFAULT_MODEL
     }
 ];

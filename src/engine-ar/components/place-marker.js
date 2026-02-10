@@ -18,18 +18,39 @@ AFRAME.registerSystem('place-marker', {
             this.cameraEl = document.querySelector('[locar-camera]');
             return;
         }
-        const camPos = this.cameraEl.object3D.position;
+
+        const camObject = this.cameraEl.object3D;
+        const camPos = camObject.position;
 
         this.markers.forEach(marker => {
-            const dist = marker.el.object3D.position.distanceTo(camPos);
+            const object3D = marker.el.object3D;
+            if (!object3D) return;
 
-            if (dist < 1000) {
-                marker.onNear();
-            } else {
-                marker.onFar();
+            const dist = object3D.position.distanceTo(camPos);
+
+            const FADE_START = 500;
+            const FADE_END = 1000;
+
+            const scale = THREE.MathUtils.clamp(
+                THREE.MathUtils.mapLinear(dist, FADE_START, FADE_END, 1, 0),
+                0, 1
+            );
+
+            const BASE_SCALE = 5;
+            const finalScale = BASE_SCALE * scale;
+            object3D.visible = scale > 0.01;
+            if (object3D.visible) {
+                object3D.scale.set(finalScale, finalScale, finalScale);
             }
 
-            marker.el.object3D.lookAt(camPos);
+            const mesh = object3D.getObjectByProperty('type', 'Mesh');
+            if (mesh && mesh.material) {
+                mesh.material.opacity = scale;
+                mesh.material.transparent = true;
+                mesh.material.needsUpdate = true;
+            }
+
+            object3D.lookAt(camPos);
         });
     }
 });
@@ -56,25 +77,8 @@ AFRAME.registerComponent('place-marker', {
             });
         }
 
-        el.setAttribute('look-at', '[camera]');
         el.object3D.position.y = 1.6;
         this.system.registerMarker(this);
-    },
-
-    onNear: function () {
-        if (!this.isNear) {
-            this.el.setAttribute('scale', '15 15 15');
-            this.el.setAttribute('visible', true);
-            this.isNear = true;
-        }
-    },
-
-    onFar: function () {
-        if (this.isNear) {
-            this.el.setAttribute('scale', '0 0 0');
-            this.el.setAttribute('visible', false);
-            this.isNear = false;
-        }
     },
 
     remove: function () {

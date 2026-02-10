@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common'; // NgClass
-import { NotificationService } from '../../../core/services/notification.service';
+import { CommonModule } from '@angular/common';
+import { NotificationService } from '../../../core/services/system/notification.service';
 
 @Component({
-    selector: 'app-toast',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-toast',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="toast-container">
       @for (msg of notificationService.messages(); track msg.id) {
         <div class="toast" [ngClass]="msg.type" (click)="notificationService.remove(msg.id)">
@@ -15,7 +15,7 @@ import { NotificationService } from '../../../core/services/notification.service
       }
     </div>
   `,
-    styles: [`
+  styles: [`
     .toast-container {
       position: fixed;
       top: 20px;
@@ -49,5 +49,5 @@ import { NotificationService } from '../../../core/services/notification.service
   `]
 })
 export class ToastComponent {
-    protected readonly notificationService = inject(NotificationService);
+  protected readonly notificationService = inject(NotificationService);
 }
