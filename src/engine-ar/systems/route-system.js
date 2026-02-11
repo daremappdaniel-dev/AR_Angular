@@ -1,7 +1,7 @@
 AFRAME.registerSystem('route-system', {
     init: function () {
         this.camera = null;
-        this.mesh = null;
+        this.meshes = [];
         this.isStabilized = false;
 
         this.targetGPS = null;
@@ -12,12 +12,21 @@ AFRAME.registerSystem('route-system', {
         globalThis.addEventListener('gps-initial-position-determined', () => {
             setTimeout(() => {
                 this.isStabilized = true;
-                if (this.mesh) {
-                    this.mesh.visible = true;
-                    this.mesh.scale.set(1, 1, 1);
-                }
+                this.meshes.forEach(mesh => {
+                    mesh.visible = true;
+                    mesh.scale.set(1, 1, 1);
+                });
             }, 500);
         });
+    },
+
+    clearRoutes: function () {
+        this.meshes.forEach(mesh => {
+            this.el.sceneEl.object3D.remove(mesh);
+            mesh.geometry?.dispose();
+            mesh.material?.dispose();
+        });
+        this.meshes = [];
     },
 
     createRoute: function (coordinates) {
@@ -45,10 +54,10 @@ AFRAME.registerSystem('route-system', {
     },
 
     registerRouteMesh: function (mesh) {
-        this.mesh = mesh;
+        this.meshes.push(mesh);
         if (!this.isStabilized) {
-            this.mesh.visible = false;
-            this.mesh.scale.set(0, 0, 0);
+            mesh.visible = false;
+            mesh.scale.set(0, 0, 0);
         }
     },
 
@@ -89,8 +98,10 @@ AFRAME.registerSystem('route-system', {
             this.camera = this.el.sceneEl.camera;
         }
 
-        if (this.camera && this.mesh) {
-            this.mesh.position.y = this.camera.position.y - 1.6;
+        if (this.camera && this.meshes.length > 0) {
+            this.meshes.forEach(mesh => {
+                mesh.position.y = this.camera.position.y - 1.6;
+            });
         }
 
         if (this.targetGPS && this.currentGPS) {

@@ -74,10 +74,9 @@ export class ArScreenComponent implements AfterViewInit {
     const sceneEl = (this.graphics as any).sceneRef?.nativeElement;
     if (!sceneEl) return;
 
-    const targetPoi = pois[0];
     const poiManager = sceneEl.systems['poi-manager'];
     if (poiManager) {
-      poiManager.setMarkers([targetPoi]);
+      poiManager.setMarkers(pois);
     }
 
     const routeSystem = sceneEl.systems['route-system'];
@@ -86,14 +85,19 @@ export class ArScreenComponent implements AfterViewInit {
 
     if (routeSystem && locar) {
       const THREE = (globalThis as any).AFRAME.THREE;
+      const segments = this.poiService.routeSegments();
 
-      const cameraEl = sceneEl.querySelector('[camera]');
-      const camPos = cameraEl?.object3D?.position || { x: 0, y: 0, z: 0 };
-      const startPoint = new THREE.Vector3(camPos.x, 0, camPos.z);
-      const worldPos = locar.lonLatToWorldCoords(targetPoi.lng, targetPoi.lat);
-      const endPoint = new THREE.Vector3(worldPos[0], 0, worldPos[1]);
+      routeSystem.clearRoutes();
 
-      routeSystem.createRoute([startPoint, endPoint]);
+      segments.forEach(segment => {
+        const startWorldPos = locar.lonLatToWorldCoords(segment.start.lng, segment.start.lat);
+        const endWorldPos = locar.lonLatToWorldCoords(segment.end.lng, segment.end.lat);
+
+        const startPoint = new THREE.Vector3(startWorldPos[0], 0, startWorldPos[1]);
+        const endPoint = new THREE.Vector3(endWorldPos[0], 0, endWorldPos[1]);
+
+        routeSystem.createRoute([startPoint, endPoint]);
+      });
     }
   }
 }

@@ -35,6 +35,22 @@ export class PoiService {
         this.poisWithDistance().filter(poi => poi.isVisible)
     );
 
+    readonly routeSegments = computed(() => {
+        const pois = this.poisResource()
+            .filter(p => p.routeOrder !== undefined)
+            .sort((a, b) => (a.routeOrder ?? 0) - (b.routeOrder ?? 0));
+
+        const segments = [];
+        for (let i = 0; i < pois.length - 1; i++) {
+            segments.push({
+                start: pois[i],
+                end: pois[i + 1],
+                segmentIndex: i
+            });
+        }
+        return segments;
+    });
+
     constructor() {
         effect(() => {
             const pois = this.poisResource();
