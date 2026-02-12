@@ -1,6 +1,6 @@
 export const AR_CONFIG = {
     MARKER: {
-        NEAR_THRESHOLD: 100,
+        NEAR_THRESHOLD: 50,
         DEFAULT_NAME: 'Lugar Desconocido',
         DEFAULT_GEOMETRY: 'primitive: plane; width: 1; height: 1',
         HEIGHT_OFFSET: 1.6,
