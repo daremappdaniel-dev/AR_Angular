@@ -1,12 +1,12 @@
 export const AR_CONFIG = {
     MARKER: {
-        NEAR_THRESHOLD: 1000,
+        NEAR_THRESHOLD: 100,
         DEFAULT_NAME: 'Lugar Desconocido',
         DEFAULT_GEOMETRY: 'primitive: plane; width: 1; height: 1',
         HEIGHT_OFFSET: 1.6,
         SCALE: {
-            NEAR: '15 15 15',
-            FAR: '15 15 15'
+            NEAR: '5 5 5',
+            FAR: '5 5 5'
         },
         DEFAULT_MODEL_PATH: './assets/daremapp/marcador.png'
     },
@@ -21,10 +21,10 @@ export const AR_CONFIG = {
     },
     STABILITY: {
         Y_MIN: 1,
-        ACCURACY_MAX: 10
+        ACCURACY_MAX: 20
     },
     AVATAR: {
-        LERP_FACTOR: 0.05,
+        LERP_FACTOR: 0.1,
         INITIAL_ACCURACY: 999
     },
     FADE: {

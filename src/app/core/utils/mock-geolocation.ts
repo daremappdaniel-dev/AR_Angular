@@ -20,15 +20,39 @@ export class MockGeolocation {
             (navigator as any).geolocation = {};
         }
 
-        navigator.geolocation.getCurrentPosition = (success, error) => {
-            success(this.currentPos as any);
+        navigator.geolocation.getCurrentPosition = (success, error, options?: PositionOptions) => {
+            const useHighAccuracy = options?.enableHighAccuracy ?? true;
+            const accuracy = useHighAccuracy ? 8 : 100;
+            const delay = useHighAccuracy ? 5000 : 100;
+
+            const position = {
+                ...this.currentPos,
+                coords: {
+                    ...this.currentPos.coords,
+                    accuracy
+                }
+            };
+
+            setTimeout(() => success(position as any), delay);
         };
 
-        navigator.geolocation.watchPosition = (success, error) => {
+        navigator.geolocation.watchPosition = (success, error, options?: PositionOptions) => {
             const id = this.watchIdCounter++;
             this.watchers.set(id, success);
 
-            setTimeout(() => success(this.currentPos as any), 100);
+            const useHighAccuracy = options?.enableHighAccuracy ?? true;
+            const accuracy = useHighAccuracy ? 8 : 100;
+            const delay = useHighAccuracy ? 5000 : 100;
+
+            const position = {
+                ...this.currentPos,
+                coords: {
+                    ...this.currentPos.coords,
+                    accuracy
+                }
+            };
+
+            setTimeout(() => success(position as any), delay);
 
             return id;
         };

@@ -10,8 +10,8 @@ export interface ArQualitySettings {
 export const AR_QUALITY_DEFAULTS: ArQualitySettings = {
     geometrySegments: 16,
     textureQuality: 'medium',
-    maxDistance: 1000,
-    physicsUpdateRate: 100
+    maxDistance: 50,
+    physicsUpdateRate: 60
 };
 
 export const AR_QUALITY = new InjectionToken<ArQualitySettings>('AR_QUALITY', {

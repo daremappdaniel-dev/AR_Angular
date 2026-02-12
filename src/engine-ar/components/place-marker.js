@@ -1,3 +1,5 @@
+import { AR_CONFIG } from '../ar-config';
+
 AFRAME.registerSystem('place-marker', {
     init: function () {
         this.markers = [];
@@ -26,10 +28,14 @@ AFRAME.registerSystem('place-marker', {
             const object3D = marker.el.object3D;
             if (!object3D) return;
 
+            if (object3D.visible === false) {
+                return;
+            }
+
             const dist = object3D.position.distanceTo(camPos);
 
-            const FADE_START = 500;
-            const FADE_END = 1000;
+            const FADE_START = AR_CONFIG.FADE.START;
+            const FADE_END = AR_CONFIG.FADE.END;
 
             const scale = THREE.MathUtils.clamp(
                 THREE.MathUtils.mapLinear(dist, FADE_START, FADE_END, 1, 0),

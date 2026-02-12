@@ -49,10 +49,9 @@ export class GpsService implements OnDestroy {
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
 
-                    this.currentPosition.set({
-                        lat: latitude,
-                        lng: longitude
-                    });
+                    this.updateLocAR(latitude, longitude);
+
+                    this.currentPosition.set({ lat: latitude, lng: longitude });
                     this.accuracy.set(accuracy);
                     (globalThis as any).lastGpsAccuracy = accuracy;
                     this.error.set(null);
