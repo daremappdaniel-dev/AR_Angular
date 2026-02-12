@@ -6,7 +6,12 @@ export interface PoiConfig {
     points: {
         north: { name: string; lat: number; lng: number };
         south: { name: string; lat: number; lng: number };
-    }
+    };
+    simulation: {
+        defaultAccuracy: number;
+        highAccuracy: { value: number; delay: number };
+        lowAccuracy: { value: number; delay: number };
+    };
 }
 
 export const POI_CONFIG_DEFAULTS: PoiConfig = {
@@ -23,6 +28,11 @@ export const POI_CONFIG_DEFAULTS: PoiConfig = {
             lat: 40.99502,
             lng: -5.719779
         }
+    },
+    simulation: {
+        defaultAccuracy: 10,
+        highAccuracy: { value: 8, delay: 5000 },
+        lowAccuracy: { value: 100, delay: 100 }
     }
 };
 

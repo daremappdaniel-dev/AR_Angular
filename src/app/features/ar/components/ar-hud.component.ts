@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ArStateService } from '../services/ar-state.service';
 import { PoiService } from '../services/poi.service';
 import { ToastComponent } from '../../../shared/ui/toast/toast.component';
-import { AR_CONFIG } from '../../../../engine-ar/ar-config';
+import { AR_TEXT } from '../../../core/constants/ui-resources';
 
 @Component({
   selector: 'app-ar-hud',
@@ -18,7 +18,7 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
         <div class="stats">
           <span>{{ accuracyLabel() }}</span>
           <span>{{ cameraYLabel() }}</span>
-          <span>POIs: {{ poiService.visiblePois().length }}</span>
+          <span>{{ AR_TEXT.POI_COUNT }}{{ poiService.visiblePois().length }}</span>
         </div>
       </div>
       
@@ -68,16 +68,17 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
 export class ArHudComponent {
   protected readonly state = inject(ArStateService);
   protected readonly poiService = inject(PoiService);
+  protected readonly AR_TEXT = AR_TEXT;
 
   protected readonly statusLabel = computed(() =>
-    this.state.isStabilized() ? AR_CONFIG.UI.STABLE : AR_CONFIG.UI.CALIBRATING
+    this.state.isStabilized() ? AR_TEXT.STABLE : AR_TEXT.CALIBRATING
   );
 
   protected readonly accuracyLabel = computed(() =>
-    `${AR_CONFIG.UI.GPS}${this.state.gpsAccuracy().toFixed(0)}${AR_CONFIG.UI.METERS}`
+    `${AR_TEXT.GPS_ACC}${this.state.gpsAccuracy().toFixed(0)}${AR_TEXT.METERS_UNIT}`
   );
 
   protected readonly cameraYLabel = computed(() =>
-    `${AR_CONFIG.UI.CAM}${this.state.cameraHeight().toFixed(1)}${AR_CONFIG.UI.METERS}`
+    `${AR_TEXT.CAM_Y}${this.state.cameraHeight().toFixed(1)}${AR_TEXT.METERS_UNIT}`
   );
 }

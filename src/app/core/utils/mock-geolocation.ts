@@ -1,11 +1,17 @@
+import { POI_CONFIG_DEFAULTS } from '../config/poi.config';
+
 export class MockGeolocation {
     private static watchIdCounter = 0;
-    private static watchers = new Map<number, PositionCallback>();
-    private static currentPos = {
+    private static readonly watchers = new Map<number, PositionCallback>();
+
+    private static readonly initialLat = (POI_CONFIG_DEFAULTS.points.north.lat + POI_CONFIG_DEFAULTS.points.south.lat) / 2;
+    private static readonly initialLng = POI_CONFIG_DEFAULTS.points.north.lng;
+
+    private static readonly currentPos = {
         coords: {
-            latitude: 40.99520,
-            longitude: -5.719779,
-            accuracy: 10,
+            latitude: this.initialLat,
+            longitude: this.initialLng,
+            accuracy: POI_CONFIG_DEFAULTS.simulation.defaultAccuracy,
             altitude: null,
             altitudeAccuracy: null,
             heading: null,
@@ -22,18 +28,17 @@ export class MockGeolocation {
 
         navigator.geolocation.getCurrentPosition = (success, error, options?: PositionOptions) => {
             const useHighAccuracy = options?.enableHighAccuracy ?? true;
-            const accuracy = useHighAccuracy ? 8 : 100;
-            const delay = useHighAccuracy ? 5000 : 100;
+            const sim = useHighAccuracy ? POI_CONFIG_DEFAULTS.simulation.highAccuracy : POI_CONFIG_DEFAULTS.simulation.lowAccuracy;
 
             const position = {
                 ...this.currentPos,
                 coords: {
                     ...this.currentPos.coords,
-                    accuracy
+                    accuracy: sim.value
                 }
             };
 
-            setTimeout(() => success(position as any), delay);
+            setTimeout(() => success(position as any), sim.delay);
         };
 
         navigator.geolocation.watchPosition = (success, error, options?: PositionOptions) => {
@@ -41,18 +46,17 @@ export class MockGeolocation {
             this.watchers.set(id, success);
 
             const useHighAccuracy = options?.enableHighAccuracy ?? true;
-            const accuracy = useHighAccuracy ? 8 : 100;
-            const delay = useHighAccuracy ? 5000 : 100;
+            const sim = useHighAccuracy ? POI_CONFIG_DEFAULTS.simulation.highAccuracy : POI_CONFIG_DEFAULTS.simulation.lowAccuracy;
 
             const position = {
                 ...this.currentPos,
                 coords: {
                     ...this.currentPos.coords,
-                    accuracy
+                    accuracy: sim.value
                 }
             };
 
-            setTimeout(() => success(position as any), delay);
+            setTimeout(() => success(position as any), sim.delay);
 
             return id;
         };

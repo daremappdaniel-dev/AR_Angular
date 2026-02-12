@@ -2,8 +2,7 @@ import { Injectable, inject, effect, OnDestroy } from '@angular/core';
 import { GpsService } from '../../../core/services/sensors/gps.service';
 import { RenderLoopService } from '../../../core/services/system/render-loop.service';
 import { AR_CONFIG } from '../../../../engine-ar/ar-config';
-
-declare const THREE: any;
+import { ThreeVector3 } from '../../../shared/models/three-types.model';
 
 @Injectable({
     providedIn: 'root'
@@ -12,12 +11,12 @@ export class AvatarPhysicsService implements OnDestroy {
     private readonly gps = inject(GpsService);
     private readonly loop = inject(RenderLoopService);
 
-    private targetPosition: any;
-    private currentPosition: any;
+    private readonly targetPosition: ThreeVector3;
+    private readonly currentPosition: ThreeVector3;
 
-    readonly avatarUniforms: { uAvatarPos: { value: any } };
+    readonly avatarUniforms: { uAvatarPos: { value: ThreeVector3 } };
 
-    private readonly boundTick = this.ejecutarTick.bind(this);
+    private readonly boundTick = this.onTick.bind(this);
     private isInitialized = false;
 
     constructor() {
@@ -29,20 +28,20 @@ export class AvatarPhysicsService implements OnDestroy {
             uAvatarPos: { value: new threeRef.Vector3() }
         };
 
-        this.conectarGps();
+        this.connectGps();
         this.loop.register(this.boundTick);
     }
 
-    private conectarGps(): void {
+    private connectGps(): void {
         effect(() => {
             const pos = this.gps.currentPosition();
             if (pos) {
-                this.actualizarObjetivo(pos.lat, pos.lng);
+                this.updateTarget(pos.lat, pos.lng);
             }
         });
     }
 
-    private actualizarObjetivo(lat: number, lng: number): void {
+    private updateTarget(lat: number, lng: number): void {
         this.targetPosition.set(lat, 0, lng);
         if (!this.isInitialized) {
             this.currentPosition.copy(this.targetPosition);
@@ -50,18 +49,18 @@ export class AvatarPhysicsService implements OnDestroy {
         }
     }
 
-    private ejecutarTick(time: number): void {
+    private onTick(time: number): void {
         if (!this.isInitialized) return;
 
-        this.suavizarMovimiento();
-        this.sincronizarUniforms();
+        this.applySmoothing();
+        this.syncUniforms();
     }
 
-    private suavizarMovimiento(): void {
+    private applySmoothing(): void {
         this.currentPosition.lerp(this.targetPosition, AR_CONFIG.AVATAR.LERP_FACTOR);
     }
 
-    private sincronizarUniforms(): void {
+    private syncUniforms(): void {
         this.avatarUniforms.uAvatarPos.value.copy(this.currentPosition);
     }
 
@@ -69,4 +68,5 @@ export class AvatarPhysicsService implements OnDestroy {
         this.loop.unregister(this.boundTick);
     }
 }
+
 

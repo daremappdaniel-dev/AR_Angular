@@ -29,7 +29,6 @@ export class GpsService implements OnDestroy {
     }
 
 
-
     private watchPosition() {
         if (!navigator.geolocation) {
             this.error.set(GPS_ERROR_CODES.UNSUPPORTED);

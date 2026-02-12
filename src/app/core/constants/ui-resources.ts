@@ -8,7 +8,12 @@ export const AR_TEXT = {
     LOADING_ENGINE: 'Cargando motor de RA...',
     METERS_UNIT: 'm',
     LATITUDE_LABEL: 'latitud',
-    LONGITUDE_LABEL: 'longitud'
+    LONGITUDE_LABEL: 'longitud',
+    STABLE: 'ESTABLE',
+    CALIBRATING: 'CALIBRANDO...',
+    GPS_ACC: 'GPS ACC: ',
+    CAM_Y: 'CAM Y: ',
+    POI_COUNT: 'POIs: '
 } as const;
 
 export const ERROR_MESSAGES = {
@@ -18,7 +23,8 @@ export const ERROR_MESSAGES = {
     UNEXPECTED: 'Ocurrió un error inesperado.',
     SERVER_ERROR: 'Error en el servidor. Inténtalo más tarde.',
     GPS_UNAVAILABLE: 'No se pudo obtener la ubicación GPS.',
-};
+    RENDER_LOOP: '[RENDER] Error en callback del bucle de renderizado:',
+} as const;
 
 export const GPS_ERROR_CODES = {
     UNSUPPORTED: 'GPS_UNSUPPORTED',
