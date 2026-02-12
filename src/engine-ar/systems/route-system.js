@@ -4,11 +4,6 @@ AFRAME.registerSystem('route-system', {
         this.meshes = [];
         this.isStabilized = false;
 
-        this.targetGPS = null;
-        this.currentGPS = null;
-        this.lerpFactor = 0.05;
-        this.minDistance = 5;
-
         globalThis.addEventListener('gps-initial-position-determined', () => {
             setTimeout(() => {
                 this.isStabilized = true;

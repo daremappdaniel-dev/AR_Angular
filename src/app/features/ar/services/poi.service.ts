@@ -1,14 +1,15 @@
-import { Injectable, inject, computed, signal, effect } from '@angular/core';
+import { Injectable, inject, computed, signal } from '@angular/core';
 import { GpsService } from '../../../core/services/sensors/gps.service';
 import { GeoUtils } from '../../../core/utils/geo-utils';
 import { DEFAULT_POIS } from '../../../shared/data/default-pois';
 import { PointOfInterest } from '../../../shared/models/poi.model';
 import { PoiView } from '../../../shared/models/poi-view.model';
-import { POI_CONSTANTS } from '../../../core/constants/poi.constants';
+import { POI_CONFIG } from '../../../core/config/poi.config';
 
 @Injectable({ providedIn: 'root' })
 export class PoiService {
-    private readonly VISIBLE_RADIUS = POI_CONSTANTS.VISIBILITY_RADIUS_METERS;
+    private readonly config = inject(POI_CONFIG);
+    private readonly VISIBLE_RADIUS = this.config.visibilityRadius;
     private readonly gps = inject(GpsService);
 
     readonly poisResource = signal<PointOfInterest[]>(DEFAULT_POIS);
@@ -57,7 +58,7 @@ export class PoiService {
         if (!userPos) return [];
 
         const allSegments = this.routeSegments();
-        const maxDistance = POI_CONSTANTS.VISIBILITY_RADIUS_METERS;
+        const maxDistance = this.config.visibilityRadius;
 
         return allSegments.filter(segment => {
             const distToStart = GeoUtils.haversine(
@@ -77,7 +78,5 @@ export class PoiService {
         });
     });
 
-    constructor() {
 
-    }
 }

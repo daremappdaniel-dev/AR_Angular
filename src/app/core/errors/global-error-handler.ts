@@ -1,6 +1,6 @@
 import { ErrorHandler, Injectable, inject, NgZone } from '@angular/core';
 import { NotificationService } from '../services/system/notification.service';
-import { ERROR_MESSAGES } from '../constants/error-messages.constants';
+import { ERROR_MESSAGES } from '../constants/ui-resources';
 
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {

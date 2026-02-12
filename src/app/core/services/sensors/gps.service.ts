@@ -1,5 +1,5 @@
 import { Injectable, signal, OnDestroy, inject, NgZone } from '@angular/core';
-import { GPS_ERROR_CODES } from '../../constants/gps-errors.constants';
+import { GPS_ERROR_CODES } from '../../constants/ui-resources';
 
 @Injectable({
     providedIn: 'root'
@@ -17,7 +17,6 @@ export class GpsService implements OnDestroy {
         this.watchPosition();
 
         (globalThis as any).teleport = (newLat: number, newLng: number) => {
-            this.updateLocAR(newLat, newLng);
 
             this.currentPosition.set({
                 lat: newLat,
@@ -29,14 +28,7 @@ export class GpsService implements OnDestroy {
         };
     }
 
-    private updateLocAR(lat: number, lng: number) {
-        const locarElement = document.querySelector('[locar-camera]') as unknown as any;
-        const locarComponent = locarElement?.components?.['locar-camera'];
 
-        if (locarComponent?.locar) {
-            locarComponent.locar.fakeGps(lng, lat);
-        }
-    }
 
     private watchPosition() {
         if (!navigator.geolocation) {
@@ -48,8 +40,6 @@ export class GpsService implements OnDestroy {
             this.watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
-
-                    this.updateLocAR(latitude, longitude);
 
                     this.currentPosition.set({ lat: latitude, lng: longitude });
                     this.accuracy.set(accuracy);
