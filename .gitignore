@@ -64,3 +64,6 @@ Desktop.ini
 key.pem
 cert.pem
 
+# SSL Generation Script
+generate-ssl.js
+
