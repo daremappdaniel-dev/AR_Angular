@@ -28,8 +28,8 @@ export const AR_CONFIG = {
         INITIAL_ACCURACY: 999
     },
     FADE: {
-        START: 40,
-        END: 50
+        START: 400,
+        END: 500
     },
     OCCLUDER: {
         GEOMETRY: [20, 10, 2],

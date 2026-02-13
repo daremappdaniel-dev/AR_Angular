@@ -15,17 +15,6 @@ export class GpsService implements OnDestroy {
 
     constructor() {
         this.watchPosition();
-
-        (globalThis as any).teleport = (newLat: number, newLng: number) => {
-
-            this.currentPosition.set({
-                lat: newLat,
-                lng: newLng
-            });
-            this.accuracy.set(0);
-            (globalThis as any).lastGpsAccuracy = 0;
-            this.error.set(null);
-        };
     }
 
 
