@@ -42,6 +42,9 @@ export class GpsService implements OnDestroy {
 
                     this.currentPosition.set({ lat: latitude, lng: longitude });
                     this.accuracy.set(accuracy);
+
+                    console.log(`%c[MOVIL GPS] Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)} (Acc: ${accuracy}m)`, "color: lime; font-weight: bold; font-size: 14px;");
+
                     (globalThis as any).lastGpsAccuracy = accuracy;
                     this.error.set(null);
                 },

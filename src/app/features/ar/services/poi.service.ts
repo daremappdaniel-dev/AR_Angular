@@ -2,8 +2,7 @@ import { Injectable, inject, computed, signal } from '@angular/core';
 import { GpsService } from '../../../core/services/sensors/gps.service';
 import { GeoUtils } from '../../../core/utils/geo-utils';
 import { DEFAULT_POIS } from '../../../shared/data/default-pois';
-import { PointOfInterest } from '../../../shared/models/poi.model';
-import { PoiView } from '../../../shared/models/poi-view.model';
+import { PointOfInterest, PoiView } from '../../../shared/models/poi.model';
 import { POI_CONFIG } from '../../../core/config/poi.config';
 
 @Injectable({ providedIn: 'root' })
