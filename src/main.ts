@@ -1,9 +1,11 @@
+import './zone-flags';
 import 'aframe';
 import 'locar';
 import 'locar-aframe';
 
 import './engine-ar/components/place-marker.js';
 import './engine-ar/components/occluder-component.js';
+import './engine-ar/components/gestures.js';
 import './engine-ar/systems/route-system.js';
 import './engine-ar/systems/stability-system.js';
 import './engine-ar/systems/poi-manager.js';

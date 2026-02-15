@@ -44,7 +44,15 @@ AFRAME.registerSystem('route-system', {
         });
 
         const mesh = new THREE.Mesh(geometry, material);
-        this.el.sceneEl.object3D.add(mesh);
+
+        const worldRootEl = document.querySelector('#ar-world-root');
+
+        if (worldRootEl && worldRootEl.object3D) {
+            worldRootEl.object3D.add(mesh);
+        } else {
+            this.el.sceneEl.object3D.add(mesh);
+        }
+
         this.registerRouteMesh(mesh);
     },
 

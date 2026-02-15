@@ -4,7 +4,7 @@ import { PointOfInterest } from '../models/poi.model';
 export const DEFAULT_POIS: PointOfInterest[] = [
     {
         name: 'TEST MOVIL (Aqui mismo)',
-        lat: 40.994852, // Muevo 10-11 metros al Sur (Original: 40.994952)
+        lat: 40.994852,
         lng: -5.719627,
         model: '',
         routeOrder: 0

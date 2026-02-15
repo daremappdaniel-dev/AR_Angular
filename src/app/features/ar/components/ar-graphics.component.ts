@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZone, CUSTOM_ELEMENTS_SCHEMA, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GpsService } from '../../../core/services/sensors/gps.service';
 import { ArStateService } from '../services/ar-state.service';
+import { GpsService } from '../../../core/services/sensors/gps.service';
 import { AR_CONFIG } from '../../../../engine-ar/ar-config';
 
 @Component({
@@ -12,6 +12,7 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
   template: `
     <a-scene #scene 
              embedded 
+             gesture-detector 
              vr-mode-ui="enabled: false"
              background="transparent: true"
              renderer="antialias: true; logarithmicDepthBuffer: true; colorManagement: true; alpha: true;"
@@ -28,11 +29,21 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
         <a-entity #camera 
                   camera 
                   position="0 1.6 0"
-                  look-controls 
+                  look-controls="touchEnabled: false"
                   [attr.locar-camera]="'gpsPos: ' + gpsCoords()">
         </a-entity>
 
-        <a-entity [attr.visible]="state.isStabilized()">
+        <a-entity id="ar-world-root"
+                  [attr.gesture-handler]="gestureConfig()">
+            
+            <a-entity id="calibration-guide"
+                      [attr.visible]="!state.isStabilized()"
+                      geometry="primitive: ring; radiusInner: 0.5; radiusOuter: 0.6"
+                      material="color: #00d2ff; shader: flat; opacity: 0.8"
+                      rotation="-90 0 0">
+                 <a-entity geometry="primitive: circle; radius: 0.1" material="color: #00d2ff"></a-entity>
+            </a-entity>
+
             <ng-content></ng-content>
         </a-entity>
 
@@ -58,7 +69,8 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
     
     :host ::ng-deep .a-canvas {
       background: transparent !important;
-      pointer-events: auto;
+      pointer-events: auto !important;
+      touch-action: none !important;
     }
     
     :host ::ng-deep video {
@@ -74,7 +86,7 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ArGraphicsComponent {
-  protected readonly state = inject(ArStateService);
+  public readonly state = inject(ArStateService);
   private readonly gps = inject(GpsService);
   private readonly ngZone = inject(NgZone);
 
@@ -89,6 +101,11 @@ export class ArGraphicsComponent {
 
   protected readonly occluderConfig = `width: ${AR_CONFIG.OCCLUDER.GEOMETRY[0]}; height: ${AR_CONFIG.OCCLUDER.GEOMETRY[1]}; depth: ${AR_CONFIG.OCCLUDER.GEOMETRY[2]}`;
 
+  protected readonly gestureConfig = computed(() => {
+    const isCalibrating = !this.state.isStabilized();
+    return `enabled: ${isCalibrating}; movementFactor: 5; lerpFactor: 0.1; forceVisible: true`;
+  });
+
   constructor() {
     this.monitorearGps();
     this.iniciarBucleSeguimiento();
@@ -99,8 +116,6 @@ export class ArGraphicsComponent {
       this.state.updateGpsAccuracy(this.gps.accuracy());
     });
   }
-
-
 
   private iniciarBucleSeguimiento(): void {
     this.ngZone.runOutsideAngular(() => {

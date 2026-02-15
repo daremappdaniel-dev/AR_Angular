@@ -7,11 +7,19 @@ AFRAME.registerSystem('poi-manager', {
     },
 
     initializeEntities: function (allPois) {
-        const scene = this.el;
+        const worldRoot = document.querySelector('#ar-world-root') || this.el;
 
         allPois.forEach((poi) => {
             console.log(`%c[MOVIL POI] ${poi.name}: ${poi.lat.toFixed(6)}, ${poi.lng.toFixed(6)}`, "color: cyan");
             const id = `poi-${poi.name}`;
+
+            if (this.entityPool.has(id)) {
+                const entity = this.entityPool.get(id);
+                if (entity.parentElement !== worldRoot) {
+                    worldRoot.appendChild(entity);
+                }
+                return;
+            }
 
             const entity = document.createElement('a-entity');
             entity.setAttribute('id', id);
@@ -26,7 +34,7 @@ AFRAME.registerSystem('poi-manager', {
             entity.setAttribute('scale', AR_CONFIG.MARKER.SCALE.NEAR);
             entity.setAttribute('visible', false);
 
-            scene.appendChild(entity);
+            worldRoot.appendChild(entity);
             this.entityPool.set(id, entity);
         });
     },
