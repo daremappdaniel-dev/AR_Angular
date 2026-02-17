@@ -3,10 +3,6 @@ import { InjectionToken } from '@angular/core';
 export interface PoiConfig {
     visibilityRadius: number;
     defaultModel: string;
-    points: {
-        north: { name: string; lat: number; lng: number };
-        south: { name: string; lat: number; lng: number };
-    };
     simulation: {
         defaultAccuracy: number;
         highAccuracy: { value: number; delay: number };
@@ -14,25 +10,21 @@ export interface PoiConfig {
     };
 }
 
+import { AR_CONSTANTS } from '../constants/ar-settings.const';
+
 export const POI_CONFIG_DEFAULTS: PoiConfig = {
-    visibilityRadius: 500,
-    defaultModel: '',
-    points: {
-        north: {
-            name: 'Punto Norte',
-            lat: 40.99546,
-            lng: -5.719779
-        },
-        south: {
-            name: 'Punto Sur',
-            lat: 40.99502,
-            lng: -5.719779
-        }
-    },
+    visibilityRadius: AR_CONSTANTS.POI.VISIBILITY_RADIUS_METERS,
+    defaultModel: AR_CONSTANTS.POI.DEFAULT_MODEL_URL,
     simulation: {
-        defaultAccuracy: 10,
-        highAccuracy: { value: 8, delay: 5000 },
-        lowAccuracy: { value: 100, delay: 100 }
+        defaultAccuracy: AR_CONSTANTS.GPS_SIMULATION.DEFAULT_ACCURACY_METERS,
+        highAccuracy: {
+            value: AR_CONSTANTS.GPS_SIMULATION.HIGH_ACCURACY.VALUE,
+            delay: AR_CONSTANTS.GPS_SIMULATION.HIGH_ACCURACY.DELAY_MS
+        },
+        lowAccuracy: {
+            value: AR_CONSTANTS.GPS_SIMULATION.LOW_ACCURACY.VALUE,
+            delay: AR_CONSTANTS.GPS_SIMULATION.LOW_ACCURACY.DELAY_MS
+        }
     }
 };
 

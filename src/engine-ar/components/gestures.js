@@ -10,7 +10,6 @@ AFRAME.registerComponent("gesture-detector", {
         this.internalState = { previousState: null };
         this.emitGestureEvent = this.emitGestureEvent.bind(this);
 
-        // BYPASS DE ZONA (Ya manejado por zone-flags.ts, usamos listener estándar)
         this.targetElement.addEventListener("touchstart", this.emitGestureEvent, { passive: true });
         this.targetElement.addEventListener("touchend", this.emitGestureEvent, { passive: true });
         this.targetElement.addEventListener("touchmove", this.emitGestureEvent, { passive: true });
@@ -122,8 +121,6 @@ AFRAME.registerComponent("gesture-handler", {
             const currentPosition = this.el.object3D.position;
             currentPosition.x += deltaX;
             currentPosition.z += deltaZ;
-
-            console.log(`[GestureHandler] Moving. Delta: [${deltaX.toFixed(4)}, ${deltaZ.toFixed(4)}]. NewPos: [${currentPosition.x.toFixed(2)}, ${currentPosition.z.toFixed(2)}]`);
         }
     }
 });

@@ -1,18 +1,16 @@
 import { Component, ChangeDetectionStrategy, inject, ViewChild, effect, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArGraphicsComponent } from './components/ar-graphics.component';
-import { ArHudComponent } from './components/ar-hud.component';
 import { PoiService } from './services/poi.service';
 import { GpsService } from '../../core/services/sensors/gps.service';
 
 @Component({
   selector: 'app-ar-screen',
   standalone: true,
-  imports: [CommonModule, ArGraphicsComponent, ArHudComponent],
+  imports: [CommonModule, ArGraphicsComponent],
   template: `
     <div class="screen-container">
       <app-ar-graphics #graphics></app-ar-graphics>
-      <app-ar-hud></app-ar-hud>
     </div>
   `,
   styles: [`
@@ -47,7 +45,18 @@ export class ArScreenComponent implements AfterViewInit {
 
       if (poiManager && poiManager.entityPool.size === 0) {
         const allPois = this.poiService.poisResource();
-        poiManager.initializeEntities(allPois);
+        const userPos = this.gps.currentPosition();
+
+        if (userPos) {
+          poiManager.initializeEntities(allPois, { lat: userPos.lat, lng: userPos.lng });
+        } else {
+          setTimeout(() => {
+            const retryPos = this.gps.currentPosition();
+            if (retryPos) {
+              poiManager.initializeEntities(allPois, { lat: retryPos.lat, lng: retryPos.lng });
+            }
+          }, 500);
+        }
       }
     }, 100);
   }
