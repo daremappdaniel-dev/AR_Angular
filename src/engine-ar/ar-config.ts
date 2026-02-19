@@ -1,4 +1,17 @@
 export const AR_CONFIG = {
+    GPS: {
+        MIN_DISTANCE: 5,
+        MIN_ACCURACY: 20,
+        ELEVATION: 1.6
+    },
+    ORIENTATION: {
+        SMOOTHING_FACTOR: 0.1,
+        CHANGE_THRESHOLD: 0.02,
+        ENABLE_PERMISSION_DIALOG: true
+    },
+    EVENTS: {
+        GPS_UPDATE: 'locar-gps-update'
+    },
     MARKER: {
         NEAR_THRESHOLD: 50,
         DEFAULT_NAME: 'Lugar Desconocido',
@@ -45,7 +58,6 @@ export const AR_CONFIG = {
     },
     POI: {
         DEFAULT_MODEL: './assets/daremapp/marcador.png',
-        GPS_MIN_DISTANCE: 5,
         POLLING_INTERVAL: 3000,
         TRIGGER_DISTANCE: 20
     }

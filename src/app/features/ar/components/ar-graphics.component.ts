@@ -28,7 +28,7 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
         <a-entity #camera 
                   camera 
                   position="0 1.6 0"
-                  look-controls 
+                  look-controls="enabled: false"
                   [attr.locar-camera]="'gpsPos: ' + gpsCoords()">
         </a-entity>
 

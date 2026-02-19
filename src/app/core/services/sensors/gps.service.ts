@@ -1,6 +1,8 @@
 import { Injectable, signal, OnDestroy, inject, NgZone } from '@angular/core';
 import { GPS_ERROR_CODES } from '../../constants/ui-resources';
 
+const GPS_UPDATE_EVENT = 'locar-gps-update';
+
 @Injectable({
     providedIn: 'root'
 })
@@ -9,16 +11,18 @@ export class GpsService implements OnDestroy {
 
     readonly currentPosition = signal<{ lat: number, lng: number } | null>(null);
     readonly accuracy = signal<number>(Infinity);
+    readonly distMoved = signal<number>(0);
     readonly error = signal<string | null>(null);
 
     private watchId: number | null = null;
+    private readonly onGpsUpdate = (e: Event) => this.procesarGpsUpdate(e as CustomEvent);
 
     constructor() {
         this.watchPosition();
+        this.escucharGpsUpdate();
     }
 
-
-    private watchPosition() {
+    private watchPosition(): void {
         if (!navigator.geolocation) {
             this.error.set(GPS_ERROR_CODES.UNSUPPORTED);
             return;
@@ -28,13 +32,8 @@ export class GpsService implements OnDestroy {
             this.watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
-
                     this.currentPosition.set({ lat: latitude, lng: longitude });
                     this.accuracy.set(accuracy);
-
-                    console.log(`%c[MOVIL GPS] Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)} (Acc: ${accuracy}m)`, "color: lime; font-weight: bold; font-size: 14px;");
-
-                    (globalThis as any).lastGpsAccuracy = accuracy;
                     this.error.set(null);
                 },
                 (err) => {
@@ -43,7 +42,6 @@ export class GpsService implements OnDestroy {
                         [err.POSITION_UNAVAILABLE]: GPS_ERROR_CODES.POSITION_UNAVAILABLE,
                         [err.TIMEOUT]: GPS_ERROR_CODES.TIMEOUT,
                     };
-
                     this.error.set(errorMap[err.code] ?? GPS_ERROR_CODES.UNKNOWN);
                 },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
@@ -51,9 +49,20 @@ export class GpsService implements OnDestroy {
         });
     }
 
-    ngOnDestroy() {
+    private escucharGpsUpdate(): void {
+        this.ngZone.runOutsideAngular(() => {
+            globalThis.addEventListener(GPS_UPDATE_EVENT, this.onGpsUpdate);
+        });
+    }
+
+    private procesarGpsUpdate(event: CustomEvent): void {
+        this.distMoved.set(event.detail.distMoved);
+    }
+
+    ngOnDestroy(): void {
         if (this.watchId !== null) {
             navigator.geolocation.clearWatch(this.watchId);
         }
+        globalThis.removeEventListener(GPS_UPDATE_EVENT, this.onGpsUpdate);
     }
 }
