@@ -29,7 +29,7 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
                   camera 
                   position="0 1.6 0"
                   look-controls="enabled: false"
-                  [attr.locar-camera]="'gpsPos: ' + gpsCoords()">
+                  [attr.locar-camera-custom]="'gpspos: ' + gpsCoords()">
         </a-entity>
 
         <a-entity [attr.visible]="state.isStabilized()">
@@ -84,7 +84,11 @@ export class ArGraphicsComponent {
 
   protected readonly gpsCoords = computed(() => {
     const pos = this.gps.currentPosition();
-    return pos ? `${pos.lng},${pos.lat}` : '';
+    const acc = this.gps.accuracy();
+
+    const val = pos ? `${pos.lng},${pos.lat},0,${acc}` : '';
+    console.log('[Angular GPS Output]', val);
+    return val;
   });
 
   protected readonly occluderConfig = `width: ${AR_CONFIG.OCCLUDER.GEOMETRY[0]}; height: ${AR_CONFIG.OCCLUDER.GEOMETRY[1]}; depth: ${AR_CONFIG.OCCLUDER.GEOMETRY[2]}`;
@@ -103,10 +107,16 @@ export class ArGraphicsComponent {
 
 
   private iniciarBucleSeguimiento(): void {
+    let lastY = 0;
+
     this.ngZone.runOutsideAngular(() => {
       const actualizarPosicion = () => {
         const y = this.cameraRef?.nativeElement?.object3D?.position?.y ?? 0;
-        this.state.updateCameraHeight(y);
+
+        if (Math.abs(y - lastY) > 0.05) {
+          lastY = y;
+          this.ngZone.run(() => this.state.updateCameraHeight(y));
+        }
 
         requestAnimationFrame(actualizarPosicion);
       };

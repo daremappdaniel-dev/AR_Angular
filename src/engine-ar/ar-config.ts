@@ -1,7 +1,7 @@
 export const AR_CONFIG = {
     GPS: {
         MIN_DISTANCE: 5,
-        MIN_ACCURACY: 20,
+        MIN_ACCURACY: 100,
         ELEVATION: 1.6
     },
     ORIENTATION: {
@@ -24,7 +24,7 @@ export const AR_CONFIG = {
         DEFAULT_MODEL_PATH: './assets/daremapp/marcador.png'
     },
     SYSTEM: {
-        LOCAR_CAMERA_SELECTOR: '[locar-camera]',
+        LOCAR_CAMERA_SELECTOR: '[locar-camera-custom]',
         LOOK_AT_TARGET: '[camera]'
     },
     COMPONENTS: {
@@ -42,7 +42,8 @@ export const AR_CONFIG = {
     },
     FADE: {
         START: 400,
-        END: 500
+        END: 500,
+        BASE_SCALE: 5
     },
     OCCLUDER: {
         GEOMETRY: [20, 10, 2],

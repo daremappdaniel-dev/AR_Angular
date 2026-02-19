@@ -32,9 +32,11 @@ export class GpsService implements OnDestroy {
             this.watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
-                    this.currentPosition.set({ lat: latitude, lng: longitude });
-                    this.accuracy.set(accuracy);
-                    this.error.set(null);
+                    this.ngZone.run(() => {
+                        this.currentPosition.set({ lat: latitude, lng: longitude });
+                        this.accuracy.set(accuracy);
+                        this.error.set(null);
+                    });
                 },
                 (err) => {
                     const errorMap: Record<number, string> = {
@@ -42,7 +44,9 @@ export class GpsService implements OnDestroy {
                         [err.POSITION_UNAVAILABLE]: GPS_ERROR_CODES.POSITION_UNAVAILABLE,
                         [err.TIMEOUT]: GPS_ERROR_CODES.TIMEOUT,
                     };
-                    this.error.set(errorMap[err.code] ?? GPS_ERROR_CODES.UNKNOWN);
+                    this.ngZone.run(() => {
+                        this.error.set(errorMap[err.code] ?? GPS_ERROR_CODES.UNKNOWN);
+                    });
                 },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
             );
@@ -56,7 +60,9 @@ export class GpsService implements OnDestroy {
     }
 
     private procesarGpsUpdate(event: CustomEvent): void {
-        this.distMoved.set(event.detail.distMoved);
+        this.ngZone.run(() => {
+            this.distMoved.set(event.detail.distMoved);
+        });
     }
 
     ngOnDestroy(): void {

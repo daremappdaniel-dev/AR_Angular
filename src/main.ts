@@ -1,6 +1,7 @@
 import 'aframe';
 import 'locar';
-import 'locar-aframe';
+import './engine-ar/components/locar-camera-custom';
+import './engine-ar/components/locar-entity-place';
 
 import './engine-ar/components/place-marker.js';
 import './engine-ar/components/occluder-component.js';
