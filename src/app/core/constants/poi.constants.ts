@@ -9,5 +9,6 @@ export const POI_CONSTANTS = {
         LAT: 40.99502,
         LNG: -5.719779
     },
-    DEFAULT_MODEL: ''
+    DEFAULT_MODEL: '',
+    VISIBILITY_RADIUS_METERS: 50
 } as const;

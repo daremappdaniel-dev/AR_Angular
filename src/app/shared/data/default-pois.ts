@@ -1,33 +1,61 @@
 import { PointOfInterest } from '../models/poi.model';
-import { POI_CONSTANTS } from '../../core/constants/poi.constants';
+
 
 export const DEFAULT_POIS: PointOfInterest[] = [
     {
-        name: POI_CONSTANTS.NORTH_POINT.NAME,
-        lat: POI_CONSTANTS.NORTH_POINT.LAT,
-        lng: POI_CONSTANTS.NORTH_POINT.LNG,
-        model: POI_CONSTANTS.DEFAULT_MODEL,
+        name: 'Cerca (8m Norte)',
+        lat: 40.6516893,
+        lng: -4.6958771,
+        model: '',
         routeOrder: 0
     },
     {
-        name: POI_CONSTANTS.SOUTH_POINT.NAME,
-        lat: POI_CONSTANTS.SOUTH_POINT.LAT,
-        lng: POI_CONSTANTS.SOUTH_POINT.LNG,
-        model: POI_CONSTANTS.DEFAULT_MODEL,
-        routeOrder: 2
-    },
-    {
-        name: 'Punto Este (Curva)',
-        lat: 40.99524,
-        lng: -5.719500,
-        model: POI_CONSTANTS.DEFAULT_MODEL,
+        name: 'Lejos (20m Este)',
+        lat: 40.6516093,
+        lng: -4.6956771,
+        model: '',
         routeOrder: 1
     },
     {
-        name: 'Punto Oeste (Curva)',
-        lat: 40.99530,
-        lng: -5.720000,
-        model: POI_CONSTANTS.DEFAULT_MODEL,
+        name: 'Invisible (100m Oeste)',
+        lat: 40.6516093,
+        lng: -4.6970771,
+        model: '',
+        routeOrder: 2
+    },
+    {
+        name: 'Mercado chico',
+        lat: 40.656612042118844,
+        lng: -4.700407329376366,
+        model: '',
         routeOrder: 3
+    },
+    {
+        name: 'Calle ambigua',
+        lat: 40.65620561281563,
+        lng: -4.699718206677127,
+        model: '',
+        routeOrder: 4
+    },
+    {
+        name: 'Plaza de Santa Teresa',
+        lat: 40.65614939887308,
+        lng: -4.697641725487889,
+        model: '',
+        routeOrder: 5
+    },
+    {
+        name: 'Paseo del rastro',
+        lat: 40.65427569821218,
+        lng: -4.696473461622629,
+        model: '',
+        routeOrder: 6
+    },
+    {
+        name: 'Paseo del rastro 2',
+        lat: 40.65473904174323,
+        lng: -4.701905175115641,
+        model: '',
+        routeOrder: 7
     }
 ];

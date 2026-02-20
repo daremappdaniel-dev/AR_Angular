@@ -4,11 +4,6 @@ AFRAME.registerSystem('route-system', {
         this.meshes = [];
         this.isStabilized = false;
 
-        this.targetGPS = null;
-        this.currentGPS = null;
-        this.lerpFactor = 0.05;
-        this.minDistance = 5;
-
         globalThis.addEventListener('gps-initial-position-determined', () => {
             setTimeout(() => {
                 this.isStabilized = true;
@@ -61,38 +56,6 @@ AFRAME.registerSystem('route-system', {
         }
     },
 
-    updateTargetGPS: function (lat, lng) {
-        if (!this.currentGPS) {
-            this.currentGPS = { lat, lng };
-            this.targetGPS = { lat, lng };
-            this.applyGPS(lat, lng);
-            return;
-        }
-
-        const R = 6371e3;
-        const phi1 = this.targetGPS.lat * Math.PI / 180;
-        const phi2 = lat * Math.PI / 180;
-        const dPhi = (lat - this.targetGPS.lat) * Math.PI / 180;
-        const dLambda = (lng - this.targetGPS.lng) * Math.PI / 180;
-
-        const a = Math.sin(dPhi / 2) * Math.sin(dPhi / 2) +
-            Math.cos(phi1) * Math.cos(phi2) *
-            Math.sin(dLambda / 2) * Math.sin(dLambda / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c;
-
-        if (distance > this.minDistance) {
-            this.targetGPS = { lat, lng };
-        }
-    },
-
-    applyGPS: function (lat, lng) {
-        const locar = document.querySelector('[locar-camera]')?.components['locar-camera']?.locar;
-        if (locar) {
-            locar.fakeGps(lng, lat);
-        }
-    },
-
     tick: function (t, dt) {
         if (!this.camera) {
             this.camera = this.el.sceneEl.camera;
@@ -102,18 +65,6 @@ AFRAME.registerSystem('route-system', {
             this.meshes.forEach(mesh => {
                 mesh.position.y = this.camera.position.y - 1.6;
             });
-        }
-
-        if (this.targetGPS && this.currentGPS) {
-            const alpha = this.lerpFactor;
-
-            const newLat = this.currentGPS.lat + (this.targetGPS.lat - this.currentGPS.lat) * alpha;
-            const newLng = this.currentGPS.lng + (this.targetGPS.lng - this.currentGPS.lng) * alpha;
-
-            this.currentGPS.lat = newLat;
-            this.currentGPS.lng = newLng;
-
-            this.applyGPS(newLat, newLng);
         }
     }
 });

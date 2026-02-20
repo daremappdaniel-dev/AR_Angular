@@ -33,12 +33,23 @@ export class ArScreenComponent implements AfterViewInit {
 
   @ViewChild('graphics') graphics!: ArGraphicsComponent;
 
+
   constructor() {
     this.sincronizarDatosMotor();
   }
 
   ngAfterViewInit(): void {
     this.iniciarCamara();
+
+    setTimeout(() => {
+      const sceneEl = (this.graphics as any).sceneRef?.nativeElement;
+      const poiManager = sceneEl?.systems?.['poi-manager'];
+
+      if (poiManager && poiManager.entityPool.size === 0) {
+        const allPois = this.poiService.poisResource();
+        poiManager.initializeEntities(allPois);
+      }
+    }, 100);
   }
 
   private async iniciarCamara(): Promise<void> {
@@ -56,15 +67,14 @@ export class ArScreenComponent implements AfterViewInit {
   }
 
   private gestionarErrorCamara(err: unknown): void {
-    // Error handling logic
   }
 
   private sincronizarDatosMotor(): void {
     effect(() => {
-      const pois = this.poiService.poisResource();
+      const pois = this.poiService.visiblePois();
       const pos = this.gps.currentPosition();
 
-      if (pois?.length && pos && this.graphics) {
+      if (pos && this.graphics) {
         this.actualizarEscena(pois);
       }
     });
@@ -85,7 +95,7 @@ export class ArScreenComponent implements AfterViewInit {
 
     if (routeSystem && locar) {
       const THREE = (globalThis as any).AFRAME.THREE;
-      const segments = this.poiService.routeSegments();
+      const segments = this.poiService.visibleRouteSegments();
 
       routeSystem.clearRoutes();
 

@@ -20,7 +20,6 @@
     "@angular/platform-browser-dynamic": "^19.0.0",
     "@angular/router": "^19.0.0",
     "aframe": "1.7.0",
-    "aframe-look-at-component": "^1.0.0",
     "locar": "0.1.8",
     "locar-aframe": "0.1.2",
     "rxjs": "~7.8.0",

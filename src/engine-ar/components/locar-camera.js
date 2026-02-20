@@ -2,7 +2,21 @@ import * as LocAR from 'locar';
 
 AFRAME.registerComponent('locar-camera', {
     schema: {
-        simulate: { type: 'boolean', default: false }
+        simulate: { type: 'boolean', default: false },
+        gpsPos: { type: 'string', default: '' }
+    },
+
+    update: function (oldData) {
+        if (this.data.gpsPos && this.data.gpsPos !== oldData.gpsPos) {
+            const coords = this.data.gpsPos.split(',');
+            if (coords.length === 2) {
+                const lon = Number.parseFloat(coords[0]);
+                const lat = Number.parseFloat(coords[1]);
+                if (!Number.isNaN(lon) && !Number.isNaN(lat) && this.locar) {
+                    this.locar.fakeGps(lon, lat);
+                }
+            }
+        }
     },
 
     init: function () {
@@ -10,30 +24,19 @@ AFRAME.registerComponent('locar-camera', {
         const camera = this.el.getObject3D('camera');
 
         if (!camera) {
-            console.error('[LocAR] Camera not found on element');
             return;
         }
 
         this.locar = new LocAR.LocationBased(scene, camera);
 
         this.el.components['locar-camera'].locar = this.locar;
-        console.log('[LocAR] Sistema nativo inicializado');
 
 
-    },
-
-    tick: function () {
     },
 
     add: function (object, lon, lat) {
         if (this.locar) {
             this.locar.add(object, lon, lat);
-        }
-    },
-
-    updateGps: function (lon, lat) {
-        if (this.data.simulate && this.locar) {
-            this.locar.fakeGps(lon, lat);
         }
     }
 });

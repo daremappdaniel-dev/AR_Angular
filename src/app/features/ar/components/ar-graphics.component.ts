@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZone, CUSTOM_ELEMENTS_SCHEMA, effect } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZone, CUSTOM_ELEMENTS_SCHEMA, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GpsService } from '../../../core/services/sensors/gps.service';
 import { ArStateService } from '../services/ar-state.service';
@@ -29,7 +29,7 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
                   camera 
                   position="0 1.6 0"
                   look-controls 
-                  locar-camera>
+                  [attr.locar-camera]="'gpsPos: ' + gpsCoords()">
         </a-entity>
 
         <a-entity [attr.visible]="state.isStabilized()">
@@ -81,6 +81,11 @@ export class ArGraphicsComponent {
   @ViewChild('scene') public sceneRef!: ElementRef;
   @ViewChild('camera') cameraRef!: ElementRef;
   @ViewChild('videoElement') videoRef!: ElementRef<HTMLVideoElement>;
+
+  protected readonly gpsCoords = computed(() => {
+    const pos = this.gps.currentPosition();
+    return pos ? `${pos.lng},${pos.lat}` : '';
+  });
 
   protected readonly occluderConfig = `width: ${AR_CONFIG.OCCLUDER.GEOMETRY[0]}; height: ${AR_CONFIG.OCCLUDER.GEOMETRY[1]}; depth: ${AR_CONFIG.OCCLUDER.GEOMETRY[2]}`;
 

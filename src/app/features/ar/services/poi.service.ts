@@ -1,13 +1,15 @@
-import { Injectable, inject, computed, signal, effect } from '@angular/core';
+import { Injectable, inject, computed, signal } from '@angular/core';
 import { GpsService } from '../../../core/services/sensors/gps.service';
 import { GeoUtils } from '../../../core/utils/geo-utils';
 import { DEFAULT_POIS } from '../../../shared/data/default-pois';
 import { PointOfInterest } from '../../../shared/models/poi.model';
 import { PoiView } from '../../../shared/models/poi-view.model';
+import { POI_CONFIG } from '../../../core/config/poi.config';
 
 @Injectable({ providedIn: 'root' })
 export class PoiService {
-    private readonly VISIBLE_RADIUS = 1000;
+    private readonly config = inject(POI_CONFIG);
+    private readonly VISIBLE_RADIUS = this.config.visibilityRadius;
     private readonly gps = inject(GpsService);
 
     readonly poisResource = signal<PointOfInterest[]>(DEFAULT_POIS);
@@ -22,7 +24,7 @@ export class PoiService {
             const distance = GeoUtils.haversine(userPos.lat, userPos.lng, poi.lat, poi.lng);
             return {
                 ...poi,
-                id: `poi-${index}`,
+                id: `poi-${poi.name}`,
                 label: poi.name,
                 distance,
                 isVisible: distance <= this.VISIBLE_RADIUS,
@@ -51,9 +53,30 @@ export class PoiService {
         return segments;
     });
 
-    constructor() {
-        effect(() => {
-            const pois = this.poisResource();
+    readonly visibleRouteSegments = computed(() => {
+        const userPos = this.gps.currentPosition();
+        if (!userPos) return [];
+
+        const allSegments = this.routeSegments();
+        const maxDistance = this.config.visibilityRadius;
+
+        return allSegments.filter(segment => {
+            const distToStart = GeoUtils.haversine(
+                userPos.lat,
+                userPos.lng,
+                segment.start.lat,
+                segment.start.lng
+            );
+            const distToEnd = GeoUtils.haversine(
+                userPos.lat,
+                userPos.lng,
+                segment.end.lat,
+                segment.end.lng
+            );
+
+            return distToStart <= maxDistance || distToEnd <= maxDistance;
         });
-    }
+    });
+
+
 }
