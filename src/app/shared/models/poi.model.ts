@@ -3,4 +3,5 @@ export interface PointOfInterest {
     readonly lat: number;
     readonly lng: number;
     readonly model: string;
+    readonly routeOrder?: number;
 }

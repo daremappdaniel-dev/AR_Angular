@@ -1,6 +1,13 @@
 import 'aframe';
+import 'locar';
+import 'locar-aframe';
 
 import './engine-ar/components/place-marker.js';
+import './engine-ar/components/occluder-component.js';
+import './engine-ar/systems/route-system.js';
+import './engine-ar/systems/stability-system.js';
+import './engine-ar/systems/poi-manager.js';
+
 import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
@@ -8,7 +15,7 @@ import { AppComponent } from './app/app.component';
 const ENABLE_MOCK_GPS = true;
 
 if (ENABLE_MOCK_GPS) {
-    let lat = 40.99520;
+    let lat = 40.9952;
     let lng = -5.719779;
 
     if (!navigator.geolocation) (navigator as any).geolocation = {};
@@ -25,7 +32,7 @@ if (ENABLE_MOCK_GPS) {
         return 1;
     };
 
-    (window as any).teleport = (newLat: number, newLng: number) => {
+    (globalThis as any).teleport = (newLat: number, newLng: number) => {
         lat = newLat;
         lng = newLng;
         if (watchCallback) {
@@ -34,5 +41,4 @@ if (ENABLE_MOCK_GPS) {
     };
 }
 
-bootstrapApplication(AppComponent, appConfig)
-    .catch((err) => console.error(err));
+await bootstrapApplication(AppComponent, appConfig);

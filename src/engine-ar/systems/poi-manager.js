@@ -5,29 +5,31 @@ AFRAME.registerSystem('poi-manager', {
         this.pois = [];
     },
 
-    loadPois: function (pois) {
+    setMarkers: function (pois) {
         this.pois = pois;
-        this.renderPois();
+        this.render();
     },
 
-    renderPois: function () {
+    render: function () {
         const scene = this.el;
 
-        this.pois.forEach(poi => {
-            let entity = document.querySelector(`#${poi.id}`);
-            if (!entity) {
-                entity = document.createElement('a-entity');
-                entity.setAttribute('id', poi.id);
-                entity.setAttribute(AR_CONFIG.COMPONENTS.LOCAR_PLACE, {
-                    latitude: poi.lat,
-                    longitude: poi.lng
-                });
-                entity.setAttribute(AR_CONFIG.COMPONENTS.MARKER, {
-                    label: poi.name,
-                    distance: poi.distance
-                });
-                scene.appendChild(entity);
-            }
+        this.pois.forEach((poi, index) => {
+            const id = poi.id || `poi-${index}`;
+            if (document.querySelector(`#${id}`)) return;
+
+            const entity = document.createElement('a-entity');
+            entity.setAttribute('id', id);
+            entity.setAttribute(AR_CONFIG.COMPONENTS.LOCAR_PLACE, {
+                latitude: poi.lat,
+                longitude: poi.lng || poi.lon
+            });
+            entity.setAttribute(AR_CONFIG.COMPONENTS.MARKER, {
+                name: poi.name,
+                model: AR_CONFIG.POI.DEFAULT_MODEL
+            });
+            entity.setAttribute('scale', AR_CONFIG.MARKER.SCALE.NEAR);
+
+            scene.appendChild(entity);
         });
     }
 });

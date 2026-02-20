@@ -8,7 +8,7 @@ export const AR_CONFIG = {
             NEAR: '15 15 15',
             FAR: '15 15 15'
         },
-        DEFAULT_MODEL_PATH: 'assets/daremapp/marcador.png'
+        DEFAULT_MODEL_PATH: './assets/daremapp/marcador.png'
     },
     SYSTEM: {
         LOCAR_CAMERA_SELECTOR: '[locar-camera]',
@@ -16,6 +16,38 @@ export const AR_CONFIG = {
     },
     COMPONENTS: {
         LOCAR_PLACE: 'locar-entity-place',
-        MARKER: 'place-marker'
+        MARKER: 'place-marker',
+        OCCLUDER: 'ar-occluder'
+    },
+    STABILITY: {
+        Y_MIN: 1,
+        ACCURACY_MAX: 10
+    },
+    AVATAR: {
+        LERP_FACTOR: 0.05,
+        INITIAL_ACCURACY: 999
+    },
+    FADE: {
+        START: 40,
+        END: 50
+    },
+    OCCLUDER: {
+        GEOMETRY: [20, 10, 2],
+        POSITION: [0, 2.5, -10],
+        COLOR: 0x00ff00
+    },
+    UI: {
+        STABLE: 'ESTABLE',
+        CALIBRATING: 'CALIBRANDO...',
+        GPS: 'GPS ACC: ',
+        CAM: 'CAM Y: ',
+        METERS: 'm'
+    },
+    POI: {
+        DEFAULT_MODEL: './assets/daremapp/marcador.png',
+        GPS_MIN_DISTANCE: 5,
+        POLLING_INTERVAL: 3000,
+        TRIGGER_DISTANCE: 20
     }
-};
+} as const;
+
