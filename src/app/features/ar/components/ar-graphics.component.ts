@@ -84,10 +84,8 @@ export class ArGraphicsComponent {
 
   protected readonly gpsCoords = computed(() => {
     const pos = this.gps.currentPosition();
-    const acc = this.gps.accuracy();
-
-    const val = pos ? `${pos.lng},${pos.lat},0,${acc}` : '';
-    console.log('[Angular GPS Output]', val);
+    const val = pos ? `${pos.lng},${pos.lat},0,0` : '';
+    console.log('[Angular GPS Output a LocAR]', val);
     return val;
   });
 

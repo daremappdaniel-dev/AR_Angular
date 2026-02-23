@@ -13,7 +13,9 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
   template: `
     <div class="hud-container">
       <div class="overlay">
-        <div class="badge" [class.stable]="state.isStabilized()">
+        <div class="badge" 
+             [class.warning]="state.gpsAccuracy() > 10 && state.gpsAccuracy() <= 20"
+             [class.stable]="state.gpsAccuracy() <= 10">
           {{ statusLabel() }}
         </div>
         <div class="stats">
@@ -50,13 +52,16 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
       padding: 4px 12px;
       border-radius: 20px;
       background: rgba(0, 0, 0, 0.6);
-      color: #ffeb3b;
+      color: #f44336; 
       font-weight: bold;
       font-size: 0.8rem;
       backdrop-filter: blur(4px);
     }
+    .badge.warning {
+      color: #ffeb3b; 
+    }
     .badge.stable {
-      color: #4caf50;
+      color: #4caf50; 
     }
     .stats {
       display: flex;
@@ -82,9 +87,14 @@ export class ArHudComponent {
     });
   }
 
-  protected readonly statusLabel = computed(() =>
-    this.state.isStabilized() ? AR_TEXT.STABLE : AR_TEXT.CALIBRATING
-  );
+  protected readonly statusLabel = computed(() => {
+    const acc = this.state.gpsAccuracy();
+    const isStable = this.state.isStabilized();
+
+    if (acc > 20) return 'BUSCANDO SEÑAL...';
+    if (acc > 10) return AR_TEXT.CALIBRATING;
+    return isStable ? AR_TEXT.STABLE : 'CALIBRANDO...';
+  });
 
   protected readonly accuracyLabel = computed(() =>
     `${AR_TEXT.GPS_ACC}${this.state.gpsAccuracy().toFixed(0)}${AR_TEXT.METERS_UNIT}`

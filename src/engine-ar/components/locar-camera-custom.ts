@@ -31,8 +31,8 @@ AFRAME.registerComponent('locar-camera-custom', {
         if (!camera) return;
 
         const gpsOptions = {
-            gpsMinDistance: AR_CONFIG.GPS.MIN_DISTANCE,
-            gpsMinAccuracy: AR_CONFIG.GPS.MIN_ACCURACY
+            gpsMinDistance: 0,
+            gpsMinAccuracy: 999999
         };
 
         this.locar = new LocAR.LocationBased(scene, camera, gpsOptions);
