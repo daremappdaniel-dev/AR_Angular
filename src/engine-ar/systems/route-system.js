@@ -1,26 +1,49 @@
 import { AR_CONFIG } from '../ar-config';
+import { Line2 } from 'three/examples/jsm/lines/Line2.js';
+import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
 AFRAME.registerSystem('route-system', {
     init: function () {
         this.camera = null;
-        this.meshes = [];
         this.isStabilized = false;
         this.locarInstance = null;
+        console.log('[ROUTE-SYSTEM] Inicializando motor Fat Lines...');
+
+        this.lineGeometry = new LineGeometry();
+        this.lineMaterial = new LineMaterial({
+            color: 0x3b82f6,
+            linewidth: 6,
+            transparent: true,
+            opacity: 0.8,
+            dashed: false,
+            depthWrite: false,
+            resolution: new THREE.Vector2(window.innerWidth, window.innerHeight)
+        });
+
+        this.fatLine = new Line2(this.lineGeometry, this.lineMaterial);
+        this.fatLine.frustumCulled = false;
+
+        this.fatLine.visible = false;
+
+        this.el.sceneEl.object3D.add(this.fatLine);
+        this.onResize = () => {
+            if (this.lineMaterial) {
+                this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+            }
+        };
+        window.addEventListener('resize', this.onResize);
 
         const locarEl = document.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
-
         locarEl?.addEventListener('gps-initial-position-determined', () => {
             this.locarInstance = locarEl.components['locar-camera-custom']?.locar ?? null;
             this.isStabilized = true;
-            this.meshes.forEach(mesh => {
-                mesh.visible = true;
-                mesh.scale.set(1, 1, 1);
-            });
+            this.fatLine.visible = true;
             this.recalcularRutas();
         });
 
         globalThis.addEventListener(AR_CONFIG.EVENTS.GPS_UPDATE, () => {
-            if (this.locarInstance) {
+            if (this.locarInstance && this.isStabilized) {
                 this.recalcularRutas();
             }
         });
@@ -28,85 +51,44 @@ AFRAME.registerSystem('route-system', {
 
     recalcularRutas: function () {
         const segments = globalThis.__arRouteSegments ?? [];
+        console.log(`[ROUTE-SYSTEM] Recalculando con ${segments.length} segmentos.`);
         if (!segments || !this.locarInstance) return;
 
-        this.clearRoutes();
+        const pathPoints = [];
 
-        segments.forEach(segment => {
+        segments.forEach((segment, index) => {
             const startCoords = this.locarInstance.lonLatToWorldCoords(segment.start.lng, segment.start.lat);
+            if (index === 0) {
+                pathPoints.push(new THREE.Vector3(startCoords[0], -AR_CONFIG.GPS.ELEVATION, startCoords[1]));
+            }
+
             const endCoords = this.locarInstance.lonLatToWorldCoords(segment.end.lng, segment.end.lat);
-
-            if (!startCoords || !endCoords) return;
-
-            const start = new THREE.Vector3(startCoords[0], 0, startCoords[1]);
-            const end = new THREE.Vector3(endCoords[0], 0, endCoords[1]);
-
-            this.createRoute([start, end]);
-        });
-    },
-
-    clearRoutes: function () {
-        this.meshes.forEach(mesh => {
-            if (mesh.parent) {
-                mesh.parent.remove(mesh);
-            }
-            mesh.geometry?.dispose();
-            if (mesh.material) {
-                if (Array.isArray(mesh.material)) {
-                    mesh.material.forEach(m => m.dispose());
-                } else {
-                    mesh.material.dispose();
-                }
-            }
-        });
-        this.meshes = [];
-    },
-
-    createRoute: function (coordinates) {
-        if (!coordinates || coordinates.length < 2) return;
-
-        const distance = coordinates[0].distanceTo(coordinates[1]);
-        const segments = Math.max(2, Math.floor(distance / 2));
-
-        const geometry = new THREE.TubeGeometry(
-            new THREE.CatmullRomCurve3(coordinates),
-            segments,
-            0.6,
-            8,
-            false
-        );
-
-        const material = new THREE.MeshBasicMaterial({
-            color: 0x3b82f6,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.8,
-            depthWrite: true
+            pathPoints.push(new THREE.Vector3(endCoords[0], -AR_CONFIG.GPS.ELEVATION, endCoords[1]));
         });
 
-        const mesh = new THREE.Mesh(geometry, material);
-        this.el.sceneEl.object3D.add(mesh);
-        this.registerRouteMesh(mesh);
+        if (pathPoints.length < 2) return;
+
+        const curve = new THREE.CatmullRomCurve3(pathPoints);
+        const smoothPointsCount = Math.max(pathPoints.length * 10, 20);
+        const smoothPoints = curve.getPoints(smoothPointsCount);
+
+        const positions = [];
+        smoothPoints.forEach(p => {
+            positions.push(p.x, p.y, p.z);
+        });
+
+        console.log(`[ROUTE-SYSTEM] Inyectando ${smoothPoints.length} puntos en el Buffer.`);
+        this.lineGeometry.setPositions(positions);
     },
 
-    registerRouteMesh: function (mesh) {
-        this.meshes.push(mesh);
-        if (!this.isStabilized) {
-            mesh.visible = false;
-            mesh.scale.set(0, 0, 0);
-        }
-    },
+    remove: function () {
+        window.removeEventListener('resize', this.onResize);
 
-    tick: function () {
-        if (!this.camera) {
-            this.camera = this.el.sceneEl.camera;
+        if (this.fatLine && this.fatLine.parent) {
+            this.fatLine.parent.remove(this.fatLine);
         }
 
-        if (this.camera && this.meshes.length > 0) {
-            this.meshes.forEach(mesh => {
-                mesh.position.y = -AR_CONFIG.GPS.ELEVATION;
-            });
-        }
+        if (this.lineGeometry) this.lineGeometry.dispose();
+        if (this.lineMaterial) this.lineMaterial.dispose();
     }
 });
-
