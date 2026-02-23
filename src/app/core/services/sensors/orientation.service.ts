@@ -1,9 +1,11 @@
 import { Injectable, NgZone, signal, OnDestroy, inject, computed } from '@angular/core';
+import { PermissionsService } from '../system/permissions.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class OrientationService implements OnDestroy {
+    private readonly permissionsService = inject(PermissionsService);
     private readonly ngZone = inject(NgZone);
 
     public currentHeading = 0;
@@ -22,16 +24,7 @@ export class OrientationService implements OnDestroy {
     }
 
     async requestPermission(): Promise<boolean> {
-        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-            try {
-                const permission = await (DeviceOrientationEvent as any).requestPermission();
-                return permission === 'granted';
-            } catch (error) {
-                console.error('Orientation permission error:', error);
-                return false;
-            }
-        }
-        return true;
+        return this.permissionsService.requestOrientationPermission();
     }
 
     private initOrientation() {

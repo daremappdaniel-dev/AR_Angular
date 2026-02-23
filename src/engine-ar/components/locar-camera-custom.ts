@@ -42,7 +42,14 @@ AFRAME.registerComponent('locar-camera-custom', {
         this.hasPosition = false;
 
         this.locar.on('gpsupdate', (event: any) => {
-            console.warn(`[LocAR OUT] ACEPTADO Dist: ${event.distMoved.toFixed(2)}m`);
+            const latFilt = event.position?.coords?.latitude ?? 'N/A';
+            const lonFilt = event.position?.coords?.longitude ?? 'N/A';
+
+            console.warn(`[LocAR OUT] ACEPTADO Dist: ${event.distMoved.toFixed(2)}m (Rebote si >20m en instantes) | Lat ${latFilt}, Lon ${lonFilt}`);
+
+            document.querySelectorAll('[place-marker]').forEach((marker: any) => {
+                console.log(`[LocAR 3D DISTANCIA] A "${marker.id}": ${marker.object3D?.position.distanceTo(camera.position).toFixed(1)}m`);
+            });
 
             if (!this.hasPosition) {
                 this.el.emit('gps-initial-position-determined', event);

@@ -7,7 +7,7 @@ export const AR_CONFIG = {
     ORIENTATION: {
         SMOOTHING_FACTOR: 0.1,
         CHANGE_THRESHOLD: 0.02,
-        ENABLE_PERMISSION_DIALOG: true
+        ENABLE_PERMISSION_DIALOG: false
     },
     EVENTS: {
         GPS_UPDATE: 'locar-gps-update'
@@ -41,8 +41,8 @@ export const AR_CONFIG = {
         INITIAL_ACCURACY: 999
     },
     FADE: {
-        START: 400,
-        END: 500,
+        START: 40,
+        END: 50,
         BASE_SCALE: 5
     },
     OCCLUDER: {

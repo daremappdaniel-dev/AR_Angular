@@ -16,6 +16,7 @@ AFRAME.registerSystem('route-system', {
                 mesh.visible = true;
                 mesh.scale.set(1, 1, 1);
             });
+            this.recalcularRutas();
         });
 
         globalThis.addEventListener(AR_CONFIG.EVENTS.GPS_UPDATE, () => {
@@ -27,7 +28,7 @@ AFRAME.registerSystem('route-system', {
 
     recalcularRutas: function () {
         const segments = globalThis.__arRouteSegments ?? [];
-        if (!segments.length) return;
+        if (!segments || !this.locarInstance) return;
 
         this.clearRoutes();
 
@@ -46,9 +47,17 @@ AFRAME.registerSystem('route-system', {
 
     clearRoutes: function () {
         this.meshes.forEach(mesh => {
-            this.el.sceneEl.object3D.remove(mesh);
+            if (mesh.parent) {
+                mesh.parent.remove(mesh);
+            }
             mesh.geometry?.dispose();
-            mesh.material?.dispose();
+            if (mesh.material) {
+                if (Array.isArray(mesh.material)) {
+                    mesh.material.forEach(m => m.dispose());
+                } else {
+                    mesh.material.dispose();
+                }
+            }
         });
         this.meshes = [];
     },
@@ -56,20 +65,23 @@ AFRAME.registerSystem('route-system', {
     createRoute: function (coordinates) {
         if (!coordinates || coordinates.length < 2) return;
 
+        const distance = coordinates[0].distanceTo(coordinates[1]);
+        const segments = Math.max(2, Math.floor(distance / 2));
+
         const geometry = new THREE.TubeGeometry(
             new THREE.CatmullRomCurve3(coordinates),
-            coordinates.length * 10,
-            0.5,
-            3,
+            segments,
+            0.6,
+            8,
             false
         );
 
         const material = new THREE.MeshBasicMaterial({
-            color: 0x0000ff,
+            color: 0x3b82f6,
             side: THREE.DoubleSide,
-            depthWrite: false,
             transparent: true,
-            opacity: 0.7
+            opacity: 0.8,
+            depthWrite: true
         });
 
         const mesh = new THREE.Mesh(geometry, material);
@@ -91,10 +103,10 @@ AFRAME.registerSystem('route-system', {
         }
 
         if (this.camera && this.meshes.length > 0) {
-            const camY = this.camera.position.y;
             this.meshes.forEach(mesh => {
-                mesh.position.y = camY - AR_CONFIG.GPS.ELEVATION;
+                mesh.position.y = -AR_CONFIG.GPS.ELEVATION;
             });
         }
     }
 });
+

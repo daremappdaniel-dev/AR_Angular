@@ -4,6 +4,7 @@ import { ArGraphicsComponent } from './components/ar-graphics.component';
 import { ArHudComponent } from './components/ar-hud.component';
 import { PoiService } from './services/poi.service';
 import { GpsService } from '../../core/services/sensors/gps.service';
+import { PermissionsService } from '../../core/services/system/permissions.service';
 
 @Component({
   selector: 'app-ar-screen',
@@ -29,6 +30,7 @@ import { GpsService } from '../../core/services/sensors/gps.service';
 export class ArScreenComponent implements AfterViewInit {
   protected readonly poiService = inject(PoiService);
   protected readonly gps = inject(GpsService);
+  private readonly permissionsService = inject(PermissionsService);
   private readonly ngZone = inject(NgZone);
 
   @ViewChild('graphics') graphics!: ArGraphicsComponent;
@@ -53,6 +55,9 @@ export class ArScreenComponent implements AfterViewInit {
   }
 
   private async iniciarCamara(): Promise<void> {
+    const hasPermission = await this.permissionsService.requestCameraPermission();
+    if (!hasPermission) return;
+
     try {
       const stream = await this.ngZone.runOutsideAngular(() =>
         navigator.mediaDevices.getUserMedia({

@@ -1,5 +1,6 @@
 import { Injectable, signal, OnDestroy, inject, NgZone } from '@angular/core';
 import { GPS_ERROR_CODES } from '../../constants/ui-resources';
+import { PermissionsService } from '../system/permissions.service';
 
 const GPS_UPDATE_EVENT = 'locar-gps-update';
 
@@ -8,6 +9,7 @@ const GPS_UPDATE_EVENT = 'locar-gps-update';
 })
 export class GpsService implements OnDestroy {
     private readonly ngZone = inject(NgZone);
+    private readonly permissionsService = inject(PermissionsService);
 
     readonly currentPosition = signal<{ lat: number, lng: number } | null>(null);
     readonly accuracy = signal<number>(Infinity);
@@ -15,11 +17,18 @@ export class GpsService implements OnDestroy {
     readonly error = signal<string | null>(null);
 
     private watchId: number | null = null;
-    private readonly onGpsUpdate = (e: Event) => this.procesarGpsUpdate(e as CustomEvent);
+    private readonly onGpsUpdate = (e: Event) => this.processGpsUpdate(e as CustomEvent);
 
     constructor() {
-        this.watchPosition();
-        this.escucharGpsUpdate();
+        this.initGps();
+        this.listenGpsUpdate();
+    }
+
+    private async initGps(): Promise<void> {
+        const hasPermission = await this.permissionsService.checkGeolocationPermission();
+        if (hasPermission) {
+            this.watchPosition();
+        }
     }
 
     private watchPosition(): void {
@@ -53,13 +62,13 @@ export class GpsService implements OnDestroy {
         });
     }
 
-    private escucharGpsUpdate(): void {
+    private listenGpsUpdate(): void {
         this.ngZone.runOutsideAngular(() => {
             globalThis.addEventListener(GPS_UPDATE_EVENT, this.onGpsUpdate);
         });
     }
 
-    private procesarGpsUpdate(event: CustomEvent): void {
+    private processGpsUpdate(event: CustomEvent): void {
         this.ngZone.run(() => {
             this.distMoved.set(event.detail.distMoved);
         });

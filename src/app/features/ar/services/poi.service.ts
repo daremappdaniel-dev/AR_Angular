@@ -21,6 +21,9 @@ export class PoiService {
 
         return currentPois.map((poi, index) => {
             const distance = GeoUtils.haversine(userPos.lat, userPos.lng, poi.lat, poi.lng);
+
+            console.log(`[Angular DISTANCIA] A "${poi.name}": ${distance.toFixed(1)}m`);
+
             return {
                 ...poi,
                 id: `poi-${poi.name}`,
