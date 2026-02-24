@@ -5,12 +5,10 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
 
 AFRAME.registerSystem('route-system', {
     init: function () {
-        this.camera = null;
         this.isStabilized = false;
         this.locarInstance = null;
         console.log('[ROUTE-SYSTEM] Inicializando motor Fat Lines...');
 
-        this.lineGeometry = new LineGeometry();
         this.lineMaterial = new LineMaterial({
             color: 0x3b82f6,
             linewidth: 6,
@@ -21,50 +19,62 @@ AFRAME.registerSystem('route-system', {
             resolution: new THREE.Vector2(window.innerWidth, window.innerHeight)
         });
 
+        this.lineGeometry = new LineGeometry();
         this.fatLine = new Line2(this.lineGeometry, this.lineMaterial);
         this.fatLine.frustumCulled = false;
-
         this.fatLine.visible = false;
 
         this.el.sceneEl.object3D.add(this.fatLine);
+
         this.onResize = () => {
             if (this.lineMaterial) {
                 this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
             }
         };
+        this.onGpsUpdate = this.handleGpsUpdate.bind(this);
+        this.onLocarReady = this.handleLocarReady.bind(this);
+
         window.addEventListener('resize', this.onResize);
+        globalThis.addEventListener(AR_CONFIG.EVENTS.GPS_UPDATE, this.onGpsUpdate);
 
+        this.el.sceneEl.addEventListener('gps-initial-position-determined', this.onLocarReady);
+    },
+
+    handleLocarReady: function (event) {
         const locarEl = document.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
-        locarEl?.addEventListener('gps-initial-position-determined', () => {
-            this.locarInstance = locarEl.components['locar-camera-custom']?.locar ?? null;
-            this.isStabilized = true;
-            this.fatLine.visible = true;
-            this.recalcularRutas();
-        });
+        if (!locarEl) return;
 
-        globalThis.addEventListener(AR_CONFIG.EVENTS.GPS_UPDATE, () => {
-            if (this.locarInstance && this.isStabilized) {
-                this.recalcularRutas();
-            }
-        });
+        this.locarInstance = locarEl.components['locar-camera-custom']?.locar ?? null;
+        this.isStabilized = true;
+        this.fatLine.visible = true;
+        this.recalcularRutas();
+    },
+
+    handleGpsUpdate: function () {
+        if (this.locarInstance && this.isStabilized) {
+            this.recalcularRutas();
+        }
     },
 
     recalcularRutas: function () {
         const segments = globalThis.__arRouteSegments ?? [];
-        console.log(`[ROUTE-SYSTEM] Recalculando con ${segments.length} segmentos.`);
-        if (!segments || !this.locarInstance) return;
+        if (!segments.length || !this.locarInstance) return;
 
+        console.log('[ROUTE] Recalculando ruta: ' + segments.length + ' segmentos.');
         const pathPoints = [];
+        const ROUTE_HEIGHT = 1.2;
 
-        segments.forEach((segment, index) => {
+        for (let i = 0; i < segments.length; i++) {
+            const segment = segments[i];
             const startCoords = this.locarInstance.lonLatToWorldCoords(segment.start.lng, segment.start.lat);
-            if (index === 0) {
-                pathPoints.push(new THREE.Vector3(startCoords[0], -AR_CONFIG.GPS.ELEVATION, startCoords[1]));
+
+            if (i === 0) {
+                pathPoints.push(new THREE.Vector3(startCoords[0], ROUTE_HEIGHT, startCoords[1]));
             }
 
             const endCoords = this.locarInstance.lonLatToWorldCoords(segment.end.lng, segment.end.lat);
-            pathPoints.push(new THREE.Vector3(endCoords[0], -AR_CONFIG.GPS.ELEVATION, endCoords[1]));
-        });
+            pathPoints.push(new THREE.Vector3(endCoords[0], ROUTE_HEIGHT, endCoords[1]));
+        }
 
         if (pathPoints.length < 2) return;
 
@@ -73,16 +83,18 @@ AFRAME.registerSystem('route-system', {
         const smoothPoints = curve.getPoints(smoothPointsCount);
 
         const positions = [];
-        smoothPoints.forEach(p => {
-            positions.push(p.x, p.y, p.z);
-        });
+        for (let j = 0; j < smoothPoints.length; j++) {
+            positions.push(smoothPoints[j].x, smoothPoints[j].y, smoothPoints[j].z);
+        }
 
-        console.log(`[ROUTE-SYSTEM] Inyectando ${smoothPoints.length} puntos en el Buffer.`);
+        console.log(`[GPU] Inyectando ${smoothPoints.length} vértices en el Buffer de la ruta.`);
         this.lineGeometry.setPositions(positions);
     },
 
     remove: function () {
         window.removeEventListener('resize', this.onResize);
+        globalThis.removeEventListener(AR_CONFIG.EVENTS.GPS_UPDATE, this.onGpsUpdate);
+        this.el.sceneEl.removeEventListener('gps-initial-position-determined', this.onLocarReady);
 
         if (this.fatLine && this.fatLine.parent) {
             this.fatLine.parent.remove(this.fatLine);

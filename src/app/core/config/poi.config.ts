@@ -15,7 +15,7 @@ export interface PoiConfig {
 }
 
 export const POI_CONFIG_DEFAULTS: PoiConfig = {
-    visibilityRadius: 50,
+    visibilityRadius: 500,
     defaultModel: '',
     points: {
         north: {

@@ -60,6 +60,7 @@ export class GpsService implements OnDestroy {
                     const esRescatePorTiempo = tiempoTranscurrido > 30 && dist > 7;
 
                     if (esMovimientoReal || esRescatePorTiempo || !this.lastValidPos) {
+                        console.log(`[GPS] Ubicación válida: ${latitude}, ${longitude} (Acc: ${accuracy}m)`);
                         this.ngZone.run(() => {
                             this.currentPosition.set({ lat: latitude, lng: longitude });
                             this.error.set(null);

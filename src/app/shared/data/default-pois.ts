@@ -2,17 +2,31 @@ import { PointOfInterest } from '../models/poi.model';
 
 export const DEFAULT_POIS: PointOfInterest[] = [
     {
-        name: 'Punto 1',
-        lat: 40.994982,
-        lng: -5.719579,
+        name: 'Punto 0',
+        lat: 40.65522457978498,
+        lng: -4.7040212499357485,
         model: '',
         routeOrder: 0
     },
     {
-        name: 'Punto 2',
-        lat: 40.995082,
-        lng: -5.719579,
+        name: 'Punto 1',
+        lat: 40.6515827,
+        lng: -4.6953966,
         model: '',
         routeOrder: 1
+    },
+    {
+        name: 'Punto 2',
+        lat: 40.65418616387712,
+        lng: -4.696462732786956,
+        model: '',
+        routeOrder: 2
+    },
+    {
+        name: 'Punto 3',
+        lat: 40.65474718116575,
+        lng: -4.701883717444337,
+        model: '',
+        routeOrder: 3
     }
 ];

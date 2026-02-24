@@ -36,7 +36,8 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
             <ng-content></ng-content>
         </a-entity>
 
-        <a-entity [attr.ar-occluder]="occluderConfig"></a-entity>
+        <!-- Oclusor desactivado temporalmente para pruebas de visibilidad de ruta -->
+        <!-- <a-entity [attr.ar-occluder]="occluderConfig"></a-entity> -->
     </a-scene>
   `,
   styles: [`
