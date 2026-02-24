@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, computed, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ArStateService } from '../services/ar-state.service';
 import { PoiService } from '../services/poi.service';
@@ -20,10 +20,7 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
         </div>
         <div class="stats">
           <span>{{ accuracyLabel() }}</span>
-          <span>{{ cameraYLabel() }}</span>
           <span>{{ AR_TEXT.POI_COUNT }}{{ poiService.visiblePois().length }}</span>
-          <span style="color:#00e5ff">FIXES OK: {{ fixesAceptados() }}</span>
-          <span style="color:#00e5ff">DIST: {{ distMovedLabel() }}</span>
         </div>
       </div>
       
@@ -79,33 +76,18 @@ export class ArHudComponent {
   private readonly gps = inject(GpsService);
   protected readonly AR_TEXT = AR_TEXT;
 
-  protected readonly fixesAceptados = signal(0);
-
-  constructor() {
-    globalThis.addEventListener('locar-gps-update', () => {
-      this.fixesAceptados.update(n => n + 1);
-    });
-  }
+  constructor() { }
 
   protected readonly statusLabel = computed(() => {
     const acc = this.state.gpsAccuracy();
     const isStable = this.state.isStabilized();
 
-    if (acc > 20) return 'BUSCANDO SEÑAL...';
+    if (acc > 20) return AR_TEXT.SEARCHING_SIGNAL;
     if (acc > 10) return AR_TEXT.CALIBRATING;
-    return isStable ? AR_TEXT.STABLE : 'CALIBRANDO...';
+    return isStable ? AR_TEXT.STABLE : AR_TEXT.CALIBRATING;
   });
 
   protected readonly accuracyLabel = computed(() =>
     `${AR_TEXT.GPS_ACC}${this.state.gpsAccuracy().toFixed(0)}${AR_TEXT.METERS_UNIT}`
   );
-
-  protected readonly cameraYLabel = computed(() =>
-    `${AR_TEXT.CAM_Y}${this.state.cameraHeight().toFixed(1)}${AR_TEXT.METERS_UNIT}`
-  );
-
-  protected readonly distMovedLabel = computed(() => {
-    const dist = this.gps.distMoved();
-    return dist === 0 ? '--' : `${dist.toFixed(1)}m`;
-  });
 }

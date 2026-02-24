@@ -15,7 +15,7 @@ AFRAME.registerComponent('locar-entity-place', {
         const locarEl = this.el.sceneEl.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
         if (!locarEl) return;
 
-        this.locarInstance = locarEl.components['locar-camera-custom']?.locar ?? null;
+        this.locarInstance = locarEl.components['locar-camera-custom']?.locar;
 
         if (this.locarInstance?.getLastKnownLocation()) {
             this.positionReady = true;
@@ -25,9 +25,8 @@ AFRAME.registerComponent('locar-entity-place', {
 
         const onInitialPosition = () => {
             locarEl.removeEventListener('gps-initial-position-determined', onInitialPosition);
-            this.locarInstance = locarEl.components['locar-camera-custom']?.locar ?? null;
-            if (!this.locarInstance) return;
-            this.locarInstance.on('gpsupdate', this.onGpsUpdate);
+            this.locarInstance = locarEl.components['locar-camera-custom']?.locar;
+            this.locarInstance?.on('gpsupdate', this.onGpsUpdate);
         };
 
         locarEl.addEventListener('gps-initial-position-determined', onInitialPosition);
@@ -40,9 +39,8 @@ AFRAME.registerComponent('locar-entity-place', {
     },
 
     update(this: any) {
-        if (this.positionReady) {
-            this.applyProjectedCoordinates();
-        }
+        if (!this.positionReady) return;
+        this.applyProjectedCoordinates();
     },
 
     remove(this: any) {
@@ -50,13 +48,10 @@ AFRAME.registerComponent('locar-entity-place', {
     },
 
     applyProjectedCoordinates(this: any) {
-        if (!this.locarInstance) return;
+        const locar = this.locarInstance;
+        if (!locar) return;
 
-        const coords = this.locarInstance.lonLatToWorldCoords(
-            this.data.longitude,
-            this.data.latitude
-        );
-
+        const coords = locar.lonLatToWorldCoords(this.data.longitude, this.data.latitude);
         if (!coords) return;
 
         this.el.object3D.position.set(

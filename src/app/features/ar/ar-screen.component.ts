@@ -37,11 +37,11 @@ export class ArScreenComponent implements AfterViewInit {
 
 
   constructor() {
-    this.sincronizarDatosMotor();
+    this.syncEngineData();
   }
 
   ngAfterViewInit(): void {
-    this.iniciarCamara();
+    this.initCamera();
 
     setTimeout(() => {
       const sceneEl = (this.graphics as any).sceneRef?.nativeElement;
@@ -54,7 +54,7 @@ export class ArScreenComponent implements AfterViewInit {
     }, 100);
   }
 
-  private async iniciarCamara(): Promise<void> {
+  private async initCamera(): Promise<void> {
     const hasPermission = await this.permissionsService.requestCameraPermission();
     if (!hasPermission) return;
 
@@ -69,23 +69,18 @@ export class ArScreenComponent implements AfterViewInit {
     } catch { }
   }
 
-
-  private sincronizarDatosMotor(): void {
+  private syncEngineData(): void {
     afterRenderEffect(() => {
       const pois = this.poiService.visiblePois();
-      const pos = this.gps.currentPosition();
-
-      if (pos && this.graphics) {
-        this.actualizarEscena(pois);
+      if (this.graphics) {
+        this.updateScene(pois);
       }
     });
   }
 
-  private actualizarEscena(pois: any[]): void {
+  private updateScene(pois: any[]): void {
     const sceneEl = (this.graphics as any).sceneRef?.nativeElement;
     if (!sceneEl) return;
-
-    (globalThis as any).__arRouteSegments = this.poiService.visibleRouteSegments();
 
     const poiManager = sceneEl.systems['poi-manager'];
     poiManager?.setMarkers(pois);

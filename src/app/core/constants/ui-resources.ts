@@ -13,7 +13,8 @@ export const AR_TEXT = {
     CALIBRATING: 'CALIBRANDO...',
     GPS_ACC: 'GPS ACC: ',
     CAM_Y: 'CAM Y: ',
-    POI_COUNT: 'POIs: '
+    POI_COUNT: 'POIs: ',
+    SEARCHING_SIGNAL: 'BUSCANDO SEÑAL...'
 } as const;
 
 export const ERROR_MESSAGES = {

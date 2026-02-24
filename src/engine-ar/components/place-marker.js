@@ -10,7 +10,6 @@ AFRAME.registerSystem('place-marker', {
 
     registerMarker: function (marker) {
         this.markers.push(marker);
-        console.log('[POI] Marcador añadido al sistema.');
     },
 
     unregisterMarker: function (marker) {
@@ -22,11 +21,10 @@ AFRAME.registerSystem('place-marker', {
         if (this.cameraEl) return this.cameraEl;
 
         const now = performance.now();
-        if (now - this.lastSearch > 500) {
-            this.cameraEl = document.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
-            if (this.cameraEl) console.log('[POI] Cámara vinculada a la caché.');
-            this.lastSearch = now;
-        }
+        if (now - this.lastSearch <= 500) return null;
+
+        this.cameraEl = document.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
+        this.lastSearch = now;
         return this.cameraEl;
     },
 
@@ -39,9 +37,9 @@ AFRAME.registerSystem('place-marker', {
         for (let i = 0; i < this.markers.length; i++) {
             const marker = this.markers[i];
             const object3D = marker.el.object3D;
-            if (object3D && object3D.visible) {
-                object3D.lookAt(camPos);
-            }
+            if (!object3D || !object3D.visible) continue;
+
+            object3D.lookAt(camPos);
         }
 
         this.calculateFades(t, dt);
@@ -51,14 +49,13 @@ AFRAME.registerSystem('place-marker', {
         const camera = this.getCamera();
         if (!camera) return;
 
-        if (t % 5000 < 200) {
-            console.log(`[POI] Sistema operativo. Procesando ${this.markers.length} marcadores.`);
-        }
-
         const camPos = camera.object3D.position;
+        const cameraComponent = camera.components['locar-camera-custom'];
+        const factor = cameraComponent?.projectionFactor || 1.32;
+
         const fadeStart = AR_CONFIG.FADE.START;
         const fadeEnd = AR_CONFIG.FADE.END;
-        const baseScale = AR_CONFIG.FADE.BASE_SCALE;
+        const baseScale = AR_CONFIG.FADE.BASE_SCALE * factor;
 
         for (let i = 0; i < this.markers.length; i++) {
             const marker = this.markers[i];
@@ -108,24 +105,27 @@ AFRAME.registerComponent('place-marker', {
             el.setAttribute('gltf-model', modelUrl);
             el.addEventListener('model-loaded', () => {
                 el.object3D.traverse((node) => {
-                    if (node.isMesh && !this.markerMesh) {
-                        this.markerMesh = node;
-                        this.markerMesh.material.transparent = true;
-                    }
+                    if (!node.isMesh || this.markerMesh) return;
+                    this.markerMesh = node;
+                    this.markerMesh.material.transparent = true;
                 });
             });
-        } else {
-            el.setAttribute('geometry', AR_CONFIG.MARKER.DEFAULT_GEOMETRY);
-            el.setAttribute('material', {
-                shader: 'flat',
-                src: modelUrl,
-                transparent: true,
-                side: 'double'
-            });
-            this.markerMesh = el.getObject3D('mesh');
+            return;
         }
 
-        el.object3D.position.y = AR_CONFIG.MARKER.HEIGHT_OFFSET;
+        el.setAttribute('geometry', AR_CONFIG.MARKER.DEFAULT_GEOMETRY);
+        el.setAttribute('material', {
+            shader: 'flat',
+            src: modelUrl,
+            transparent: true,
+            side: 'double'
+        });
+        this.markerMesh = el.getObject3D('mesh');
+
+        const camera = document.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
+        const factor = camera?.components['locar-camera-custom']?.projectionFactor || 1.32;
+        el.object3D.position.y = AR_CONFIG.MARKER.HEIGHT_OFFSET * factor;
+
         this.system.registerMarker(this);
     },
 

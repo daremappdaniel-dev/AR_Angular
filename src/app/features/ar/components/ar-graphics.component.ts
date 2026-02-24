@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZo
 import { CommonModule } from '@angular/common';
 import { GpsService } from '../../../core/services/sensors/gps.service';
 import { ArStateService } from '../services/ar-state.service';
-import { AR_CONFIG } from '../../../../engine-ar/ar-config';
+
 
 @Component({
   selector: 'app-ar-graphics',
@@ -25,19 +25,15 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
                playsinline 
                style="display: none;"></video>
 
-        <a-entity #camera 
-                  camera 
+        <a-entity camera 
                   position="0 1.6 0"
                   look-controls="enabled: false"
-                  [attr.locar-camera-custom]="'gpspos: ' + gpsCoords()">
+                  [attr.locar-camera-custom]="gpsParams()">
         </a-entity>
 
         <a-entity [attr.visible]="state.isStabilized()">
             <ng-content></ng-content>
         </a-entity>
-
-        <!-- Oclusor desactivado temporalmente para pruebas de visibilidad de ruta -->
-        <!-- <a-entity [attr.ar-occluder]="occluderConfig"></a-entity> -->
     </a-scene>
   `,
   styles: [`
@@ -80,24 +76,19 @@ export class ArGraphicsComponent {
   private readonly ngZone = inject(NgZone);
 
   @ViewChild('scene') public sceneRef!: ElementRef;
-  @ViewChild('camera') cameraRef!: ElementRef;
   @ViewChild('videoElement') videoRef!: ElementRef<HTMLVideoElement>;
 
-  protected readonly gpsCoords = computed(() => {
+  protected readonly gpsParams = computed(() => {
     const pos = this.gps.currentPosition();
-    const val = pos ? `${pos.lng},${pos.lat},0,0` : '';
-    console.log('[Angular GPS Output a LocAR]', val);
-    return val;
+    if (!pos) return '';
+    return `lat: ${pos.lat}; lng: ${pos.lng}; acc: ${this.gps.accuracy()}`;
   });
 
-  protected readonly occluderConfig = `width: ${AR_CONFIG.OCCLUDER.GEOMETRY[0]}; height: ${AR_CONFIG.OCCLUDER.GEOMETRY[1]}; depth: ${AR_CONFIG.OCCLUDER.GEOMETRY[2]}`;
-
   constructor() {
-    this.monitorearGps();
-    this.iniciarBucleSeguimiento();
+    this.monitorGps();
   }
 
-  private monitorearGps(): void {
+  private monitorGps(): void {
     effect(() => {
       this.state.updateGpsAccuracy(this.gps.accuracy());
     });
@@ -105,23 +96,7 @@ export class ArGraphicsComponent {
 
 
 
-  private iniciarBucleSeguimiento(): void {
-    let lastY = 0;
 
-    this.ngZone.runOutsideAngular(() => {
-      const actualizarPosicion = () => {
-        const y = this.cameraRef?.nativeElement?.object3D?.position?.y ?? 0;
-
-        if (Math.abs(y - lastY) > 0.05) {
-          lastY = y;
-          this.ngZone.run(() => this.state.updateCameraHeight(y));
-        }
-
-        requestAnimationFrame(actualizarPosicion);
-      };
-      requestAnimationFrame(actualizarPosicion);
-    });
-  }
 
   protected onStable(): void {
     this.ngZone.run(() => this.state.setStabilized(true));

@@ -4,24 +4,19 @@ import { AR_CONFIG } from '../ar-config';
 
 AFRAME.registerComponent('locar-camera-custom', {
     schema: {
-        simulate: { type: 'boolean', default: false },
-        gpspos: { type: 'string', default: '' }
+        lat: { type: 'number', default: 0 },
+        lng: { type: 'number', default: 0 },
+        acc: { type: 'number', default: 0 }
     },
 
     update(this: any, oldData: any) {
-        if (this.data.gpspos && this.data.gpspos !== oldData.gpspos) {
-            const coords = this.data.gpspos.split(',');
-            if (coords.length === 4) {
-                const lon = Number.parseFloat(coords[0]);
-                const lat = Number.parseFloat(coords[1]);
-                const acc = Number.parseFloat(coords[3]);
+        const { lat, lng, acc } = this.data;
 
-                if (!Number.isNaN(lon) && !Number.isNaN(lat) && !Number.isNaN(acc) && this.locar) {
-                    console.warn(`[LocAR IN] Lat ${lat}, Lon ${lon}, Acc ${acc}m`);
-                    this.locar.fakeGps(lon, lat, null, acc);
-                }
-            }
-        }
+        if (lat === 0 || lng === 0) return;
+        if (lat === oldData.lat && lng === oldData.lng) return;
+
+        this._updateProjectionFactor(lat);
+        this.locar?.fakeGps(lng, lat, null, acc);
     },
 
     init(this: any) {
@@ -36,20 +31,16 @@ AFRAME.registerComponent('locar-camera-custom', {
         };
 
         this.locar = new LocAR.LocationBased(scene, camera, gpsOptions);
-        this.locar.setElevation(AR_CONFIG.GPS.ELEVATION);
+        this.projectionFactor = 1.32;
+        this.locar.setElevation(AR_CONFIG.GPS.ELEVATION * this.projectionFactor);
         this.el.components['locar-camera-custom'].locar = this.locar;
+        this.el.components['locar-camera-custom'].projectionFactor = this.projectionFactor;
 
         this.hasPosition = false;
 
         this.locar.on('gpsupdate', (event: any) => {
-            const latFilt = event.position?.coords?.latitude ?? 'N/A';
-            const lonFilt = event.position?.coords?.longitude ?? 'N/A';
-
-            console.warn(`[LocAR OUT] ACEPTADO Dist: ${event.distMoved.toFixed(2)}m (Rebote si >20m en instantes) | Lat ${latFilt}, Lon ${lonFilt}`);
-
-            document.querySelectorAll('[place-marker]').forEach((marker: any) => {
-                console.log(`[LocAR 3D DISTANCIA] A "${marker.id}": ${marker.object3D?.position.distanceTo(camera.position).toFixed(1)}m`);
-            });
+            const lat = event.position.coords.latitude;
+            this._updateProjectionFactor(lat);
 
             if (!this.hasPosition) {
                 this.el.emit('gps-initial-position-determined', event);
@@ -93,6 +84,17 @@ AFRAME.registerComponent('locar-camera-custom', {
     add(this: any, object: any, lon: number, lat: number) {
         if (this.locar) {
             this.locar.add(object, lon, lat);
+        }
+    },
+
+    _updateProjectionFactor(this: any, lat: number) {
+        const factor = 1 / Math.cos(lat * Math.PI / 180);
+        if (Math.abs(this.projectionFactor - factor) > 0.001) {
+            this.projectionFactor = factor;
+            this.el.components['locar-camera-custom'].projectionFactor = factor;
+            if (this.locar) {
+                this.locar.setElevation(AR_CONFIG.GPS.ELEVATION * factor);
+            }
         }
     }
 });

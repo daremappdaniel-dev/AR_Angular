@@ -45,43 +45,54 @@ export class GpsService implements OnDestroy {
             this.watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude, accuracy } = position.coords;
-
                     this.ngZone.run(() => this.accuracy.set(accuracy));
 
-                    if (!this.lastValidPos && accuracy > 10) return;
+                    if (this.isSignalTooWeak(accuracy)) return;
 
-                    if (accuracy > 15) return;
+                    const distance = this.calculateDistanceFromLast(latitude, longitude);
+                    const timeElapsed = (Date.now() - this.lastUpdateTime) / 1000;
 
-                    const dist = this.calcularDistanciaDesdeUltima(latitude, longitude);
-                    const ahora = Date.now();
-                    const tiempoTranscurrido = (ahora - this.lastUpdateTime) / 1000;
-
-                    const esMovimientoReal = dist > 10;
-                    const esRescatePorTiempo = tiempoTranscurrido > 30 && dist > 7;
-
-                    if (esMovimientoReal || esRescatePorTiempo || !this.lastValidPos) {
-                        console.log(`[GPS] Ubicación válida: ${latitude}, ${longitude} (Acc: ${accuracy}m)`);
-                        this.ngZone.run(() => {
-                            this.currentPosition.set({ lat: latitude, lng: longitude });
-                            this.error.set(null);
-
-                            this.lastValidPos = { lat: latitude, lng: longitude };
-                            this.lastUpdateTime = ahora;
-                        });
+                    if (this.isSignificantMovement(distance, timeElapsed)) {
+                        this.updateCurrentPosition(latitude, longitude, accuracy);
                     }
                 },
-                (err) => {
-                    const errorMap: Record<number, string> = {
-                        [err.PERMISSION_DENIED]: GPS_ERROR_CODES.PERMISSION_DENIED,
-                        [err.POSITION_UNAVAILABLE]: GPS_ERROR_CODES.POSITION_UNAVAILABLE,
-                        [err.TIMEOUT]: GPS_ERROR_CODES.TIMEOUT,
-                    };
-                    this.ngZone.run(() => {
-                        this.error.set(errorMap[err.code] ?? GPS_ERROR_CODES.UNKNOWN);
-                    });
-                },
+                (err) => this.handleGpsError(err),
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
             );
+        });
+    }
+
+    private isSignalTooWeak(accuracy: number): boolean {
+        return accuracy > 10;
+    }
+
+    private isSignificantMovement(distance: number, timeElapsed: number): boolean {
+        if (!this.lastValidPos) return true;
+
+        const isRealMovement = distance > 10;
+        const isTimeRescue = timeElapsed > 30 && distance > 7;
+
+        return isRealMovement || isTimeRescue;
+    }
+
+    private updateCurrentPosition(latitude: number, longitude: number, accuracy: number): void {
+        this.ngZone.run(() => {
+            this.currentPosition.set({ lat: latitude, lng: longitude });
+            this.error.set(null);
+
+            this.lastValidPos = { lat: latitude, lng: longitude };
+            this.lastUpdateTime = Date.now();
+        });
+    }
+
+    private handleGpsError(err: GeolocationPositionError): void {
+        const errorMap: Record<number, string> = {
+            [err.PERMISSION_DENIED]: GPS_ERROR_CODES.PERMISSION_DENIED,
+            [err.POSITION_UNAVAILABLE]: GPS_ERROR_CODES.POSITION_UNAVAILABLE,
+            [err.TIMEOUT]: GPS_ERROR_CODES.TIMEOUT,
+        };
+        this.ngZone.run(() => {
+            this.error.set(errorMap[err.code] ?? GPS_ERROR_CODES.UNKNOWN);
         });
     }
 
@@ -97,7 +108,7 @@ export class GpsService implements OnDestroy {
         });
     }
 
-    private calcularDistanciaDesdeUltima(lat: number, lng: number): number {
+    private calculateDistanceFromLast(lat: number, lng: number): number {
         if (!this.lastValidPos) return Infinity;
         return GeoUtils.haversine(
             this.lastValidPos.lat,

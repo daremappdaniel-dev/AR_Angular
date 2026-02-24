@@ -29,33 +29,12 @@ export const AR_CONFIG = {
     },
     COMPONENTS: {
         LOCAR_PLACE: 'locar-entity-place',
-        MARKER: 'place-marker',
-        OCCLUDER: 'ar-occluder'
-    },
-    STABILITY: {
-        Y_MIN: 1,
-        ACCURACY_MAX: 20
-    },
-    AVATAR: {
-        LERP_FACTOR: 0.1,
-        INITIAL_ACCURACY: 999
+        MARKER: 'place-marker'
     },
     FADE: {
         START: 40,
         END: 50,
         BASE_SCALE: 5
-    },
-    OCCLUDER: {
-        GEOMETRY: [20, 10, 2],
-        POSITION: [0, 2.5, -10],
-        COLOR: 0x00ff00
-    },
-    UI: {
-        STABLE: 'ESTABLE',
-        CALIBRATING: 'CALIBRANDO...',
-        GPS: 'GPS ACC: ',
-        CAM: 'CAM Y: ',
-        METERS: 'm'
     },
     POI: {
         DEFAULT_MODEL: './assets/daremapp/marcador.png',
