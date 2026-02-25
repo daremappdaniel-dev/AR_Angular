@@ -14,7 +14,7 @@ import { ArStateService } from '../services/ar-state.service';
              embedded 
              vr-mode-ui="enabled: false"
              background="transparent: true"
-             renderer="antialias: true; logarithmicDepthBuffer: true; colorManagement: true; alpha: true;"
+             renderer="antialias: true; colorManagement: true; alpha: true;"
              stability 
              (ar-stable)="onStable()"
              (camera-error)="onCameraError($event)">

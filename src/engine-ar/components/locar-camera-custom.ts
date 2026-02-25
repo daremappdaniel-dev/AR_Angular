@@ -10,13 +10,10 @@ AFRAME.registerComponent('locar-camera-custom', {
     },
 
     update(this: any, oldData: any) {
-        const { lat, lng, acc } = this.data;
-
-        if (lat === 0 || lng === 0) return;
-        if (lat === oldData.lat && lng === oldData.lng) return;
-
+        const { lat } = this.data;
+        if (lat === 0) return;
+        if (lat === oldData.lat) return;
         this._updateProjectionFactor(lat);
-        this.locar?.fakeGps(lng, lat, null, acc);
     },
 
     init(this: any) {
@@ -36,23 +33,7 @@ AFRAME.registerComponent('locar-camera-custom', {
         this.el.components['locar-camera-custom'].locar = this.locar;
         this.el.components['locar-camera-custom'].projectionFactor = this.projectionFactor;
 
-        this.hasPosition = false;
 
-        this.locar.on('gpsupdate', (event: any) => {
-            const lat = event.position.coords.latitude;
-            this._updateProjectionFactor(lat);
-
-            if (!this.hasPosition) {
-                this.el.emit('gps-initial-position-determined', event);
-                this.hasPosition = true;
-            }
-
-            queueMicrotask(() => {
-                globalThis.dispatchEvent(new CustomEvent(AR_CONFIG.EVENTS.GPS_UPDATE, {
-                    detail: { distMoved: event.distMoved, position: event.position }
-                }));
-            });
-        });
 
         const orientationOptions = {
             smoothingFactor: AR_CONFIG.ORIENTATION.SMOOTHING_FACTOR,
@@ -81,11 +62,6 @@ AFRAME.registerComponent('locar-camera-custom', {
         }
     },
 
-    add(this: any, object: any, lon: number, lat: number) {
-        if (this.locar) {
-            this.locar.add(object, lon, lat);
-        }
-    },
 
     _updateProjectionFactor(this: any, lat: number) {
         const factor = 1 / Math.cos(lat * Math.PI / 180);

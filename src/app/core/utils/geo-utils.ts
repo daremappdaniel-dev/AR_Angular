@@ -14,4 +14,11 @@ export class GeoUtils {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return this.R * c;
     }
+
+    static sphMercProject(lng: number, lat: number): [number, number] {
+        const R = 6378137;
+        const x = R * lng * Math.PI / 180;
+        const y = R * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360));
+        return [x, y];
+    }
 }

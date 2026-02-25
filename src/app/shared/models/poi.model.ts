@@ -10,4 +10,6 @@ export interface PoiView extends PointOfInterest {
     readonly label: string;
     readonly distance: number;
     readonly isVisible: boolean;
+    readonly worldX: number;
+    readonly worldZ: number;
 }

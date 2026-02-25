@@ -19,15 +19,20 @@ export class PoiService {
 
         if (!userPos) return [];
 
+        const userProjected = GeoUtils.sphMercProject(userPos.lng, userPos.lat);
+
         return currentPois.map((poi) => {
             const distance = GeoUtils.haversine(userPos.lat, userPos.lng, poi.lat, poi.lng);
+            const poiProjected = GeoUtils.sphMercProject(poi.lng, poi.lat);
 
             return {
                 ...poi,
                 id: `poi-${poi.name}`,
                 label: poi.name,
                 distance,
-                isVisible: distance <= this.VISIBLE_RADIUS
+                isVisible: distance <= this.VISIBLE_RADIUS,
+                worldX: poiProjected[0] - userProjected[0],
+                worldZ: -(poiProjected[1] - userProjected[1])
             };
         }).sort((a, b) => a.distance - b.distance);
     });

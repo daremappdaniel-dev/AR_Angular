@@ -46,9 +46,9 @@ export class ArScreenComponent implements AfterViewInit {
     setTimeout(() => {
       const sceneEl = (this.graphics as any).sceneRef?.nativeElement;
       const poiManager = sceneEl?.systems?.['poi-manager'];
+      const allPois = this.poiService.poisResource();
 
-      if (poiManager?.entityPool.size === 0) {
-        const allPois = this.poiService.poisResource();
+      if (poiManager && allPois.length > 0) {
         poiManager.initializeEntities(allPois);
       }
     }, 100);

@@ -1,7 +1,7 @@
 import 'aframe';
 import 'locar';
 import './engine-ar/components/locar-camera-custom';
-import './engine-ar/components/locar-entity-place';
+import './engine-ar/components/world-position';
 
 import './engine-ar/components/place-marker.js';
 import './engine-ar/systems/poi-manager.js';

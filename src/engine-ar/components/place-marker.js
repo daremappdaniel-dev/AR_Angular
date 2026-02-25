@@ -34,8 +34,7 @@ AFRAME.registerSystem('place-marker', {
 
         const camPos = camera.object3D.position;
 
-        for (let i = 0; i < this.markers.length; i++) {
-            const marker = this.markers[i];
+        for (const marker of this.markers) {
             const object3D = marker.el.object3D;
             if (!object3D || !object3D.visible) continue;
 
@@ -57,8 +56,7 @@ AFRAME.registerSystem('place-marker', {
         const fadeEnd = AR_CONFIG.FADE.END;
         const baseScale = AR_CONFIG.FADE.BASE_SCALE * factor;
 
-        for (let i = 0; i < this.markers.length; i++) {
-            const marker = this.markers[i];
+        for (const marker of this.markers) {
             const el = marker.el;
             const object3D = el.object3D;
             if (!object3D) continue;
@@ -122,9 +120,6 @@ AFRAME.registerComponent('place-marker', {
         });
         this.markerMesh = el.getObject3D('mesh');
 
-        const camera = document.querySelector(AR_CONFIG.SYSTEM.LOCAR_CAMERA_SELECTOR);
-        const factor = camera?.components['locar-camera-custom']?.projectionFactor || 1.32;
-        el.object3D.position.y = AR_CONFIG.MARKER.HEIGHT_OFFSET * factor;
 
         this.system.registerMarker(this);
     },
