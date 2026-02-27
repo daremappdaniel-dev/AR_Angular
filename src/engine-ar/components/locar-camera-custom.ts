@@ -3,27 +3,6 @@ import * as LocAR from 'locar';
 import { AR_CONFIG } from '../ar-config';
 
 AFRAME.registerComponent('locar-camera-custom', {
-    schema: {
-        simulate: { type: 'boolean', default: false },
-        gpspos: { type: 'string', default: '' }
-    },
-
-    update(this: any, oldData: any) {
-        if (this.data.gpspos && this.data.gpspos !== oldData.gpspos) {
-            const coords = this.data.gpspos.split(',');
-            if (coords.length === 4) {
-                const lon = Number.parseFloat(coords[0]);
-                const lat = Number.parseFloat(coords[1]);
-                const acc = Number.parseFloat(coords[3]);
-
-                if (!Number.isNaN(lon) && !Number.isNaN(lat) && !Number.isNaN(acc) && this.locar) {
-                    console.warn(`[LocAR IN] Lat ${lat}, Lon ${lon}, Acc ${acc}m`);
-                    this.locar.fakeGps(lon, lat, null, acc);
-                }
-            }
-        }
-    },
-
     init(this: any) {
         const scene = this.el.sceneEl.object3D;
         const camera = this.el.getObject3D('camera');
@@ -31,13 +10,14 @@ AFRAME.registerComponent('locar-camera-custom', {
         if (!camera) return;
 
         const gpsOptions = {
-            gpsMinDistance: 0,
-            gpsMinAccuracy: 999999
+            gpsMinDistance: 7,
+            gpsMinAccuracy: 10
         };
 
         this.locar = new LocAR.LocationBased(scene, camera, gpsOptions);
         this.locar.setElevation(AR_CONFIG.GPS.ELEVATION);
         this.el.components['locar-camera-custom'].locar = this.locar;
+        this.locar.startGps();
 
         this.hasPosition = false;
 
@@ -58,7 +38,12 @@ AFRAME.registerComponent('locar-camera-custom', {
 
             queueMicrotask(() => {
                 globalThis.dispatchEvent(new CustomEvent(AR_CONFIG.EVENTS.GPS_UPDATE, {
-                    detail: { distMoved: event.distMoved, position: event.position }
+                    detail: {
+                        distMoved: event.distMoved,
+                        lat: event.position.coords.latitude,
+                        lng: event.position.coords.longitude,
+                        accuracy: event.position.coords.accuracy
+                    }
                 }));
             });
         });

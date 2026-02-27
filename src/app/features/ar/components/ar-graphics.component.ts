@@ -1,12 +1,10 @@
-import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZone, CUSTOM_ELEMENTS_SCHEMA, effect, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZone, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ArStateService } from '../services/ar-state.service';
 import { AR_CONFIG } from '../../../../engine-ar/ar-config';
 
 @Component({
   selector: 'app-ar-graphics',
   standalone: true,
-  imports: [CommonModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <a-scene #scene 
@@ -28,15 +26,13 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
                   camera 
                   position="0 1.6 0"
                   look-controls="enabled: false"
-                  [attr.locar-camera-custom]="'gpspos: ' + gpsCoords()">
+                  locar-camera-custom>
         </a-entity>
 
         <a-entity [attr.visible]="state.isStabilized()">
             <ng-content></ng-content>
         </a-entity>
 
-        <!-- Oclusor desactivado temporalmente para pruebas de visibilidad de ruta -->
-        <!-- <a-entity [attr.ar-occluder]="occluderConfig"></a-entity> -->
     </a-scene>
   `,
   styles: [`

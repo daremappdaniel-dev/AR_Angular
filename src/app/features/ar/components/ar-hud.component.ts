@@ -79,10 +79,14 @@ export class ArHudComponent {
   protected readonly fixesAceptados = signal(0);
 
   constructor() {
-    globalThis.addEventListener('locar-gps-update', () => {
+    globalThis.addEventListener('locar-gps-update', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
       this.fixesAceptados.update(n => n + 1);
+      this.state.updateUserPosition({ lat: detail.lat, lng: detail.lng });
+      this.state.updateGpsAccuracy(detail.accuracy);
     });
   }
+
 
   protected readonly statusLabel = computed(() => {
     const acc = this.state.gpsAccuracy();

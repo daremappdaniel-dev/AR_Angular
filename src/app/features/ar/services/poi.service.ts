@@ -1,28 +1,26 @@
 import { Injectable, inject, computed, signal } from '@angular/core';
-import { GpsService } from '../../../core/services/sensors/gps.service';
 import { GeoUtils } from '../../../core/utils/geo-utils';
 import { DEFAULT_POIS } from '../../../shared/data/default-pois';
 import { PointOfInterest, PoiView } from '../../../shared/models/poi.model';
 import { POI_CONFIG } from '../../../core/config/poi.config';
+import { ArStateService } from './ar-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class PoiService {
     private readonly config = inject(POI_CONFIG);
     private readonly VISIBLE_RADIUS = this.config.visibilityRadius;
-    private readonly gps = inject(GpsService);
+    private readonly state = inject(ArStateService);
 
     readonly poisResource = signal<PointOfInterest[]>(DEFAULT_POIS);
 
     readonly poisWithDistance = computed<PoiView[]>(() => {
-        const userPos = this.gps.currentPosition();
+        const userPos = this.state.userPosition();
         const currentPois = this.poisResource();
 
         if (!userPos) return [];
 
-        return currentPois.map((poi, index) => {
+        return currentPois.map(poi => {
             const distance = GeoUtils.haversine(userPos.lat, userPos.lng, poi.lat, poi.lng);
-
-            console.log(`[Angular DISTANCIA] A "${poi.name}": ${distance.toFixed(1)}m`);
 
             return {
                 ...poi,
@@ -56,7 +54,7 @@ export class PoiService {
     });
 
     readonly visibleRouteSegments = computed(() => {
-        const userPos = this.gps.currentPosition();
+        const userPos = this.state.userPosition();
         if (!userPos) return [];
 
         const allSegments = this.routeSegments();
@@ -64,21 +62,15 @@ export class PoiService {
 
         return allSegments.filter(segment => {
             const distToStart = GeoUtils.haversine(
-                userPos.lat,
-                userPos.lng,
-                segment.start.lat,
-                segment.start.lng
+                userPos.lat, userPos.lng,
+                segment.start.lat, segment.start.lng
             );
             const distToEnd = GeoUtils.haversine(
-                userPos.lat,
-                userPos.lng,
-                segment.end.lat,
-                segment.end.lng
+                userPos.lat, userPos.lng,
+                segment.end.lat, segment.end.lng
             );
 
             return distToStart <= maxDistance || distToEnd <= maxDistance;
         });
     });
-
-
 }
