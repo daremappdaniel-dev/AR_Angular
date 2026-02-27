@@ -22,6 +22,7 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
           <span>{{ cameraYLabel() }}</span>
           <span>{{ AR_TEXT.POI_COUNT }}{{ poiService.visiblePois().length }}</span>
           <span style="color:#00e5ff">FIXES OK: {{ fixesAceptados() }}</span>
+          <button class="calibration-btn" (click)="medirDesviacion()">MEDIR BRUJULA</button>
         </div>
       </div>
       
@@ -68,6 +69,17 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
       font-size: 0.75rem;
       text-shadow: 1px 1px 2px black;
     }
+    .calibration-btn {
+      pointer-events: auto;
+      margin-top: 8px;
+      padding: 6px 14px;
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      border: 1px solid #fff;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -77,6 +89,7 @@ export class ArHudComponent {
   protected readonly AR_TEXT = AR_TEXT;
 
   protected readonly fixesAceptados = signal(0);
+  private compassAlpha = 0;
 
   constructor() {
     globalThis.addEventListener('locar-gps-update', (e: Event) => {
@@ -85,6 +98,14 @@ export class ArHudComponent {
       this.state.updateUserPosition({ lat: detail.lat, lng: detail.lng });
       this.state.updateGpsAccuracy(detail.accuracy);
     });
+
+    globalThis.addEventListener('deviceorientationabsolute', (e: any) => {
+      this.compassAlpha = e.alpha ?? 0;
+    });
+  }
+
+  protected medirDesviacion(): void {
+    console.warn(`[BRUJULA] Alpha: ${this.compassAlpha.toFixed(1)}deg | Desviacion Norte esperada: 0deg`);
   }
 
 

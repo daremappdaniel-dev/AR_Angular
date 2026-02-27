@@ -1,9 +1,11 @@
 declare const AFRAME: any;
 import * as LocAR from 'locar';
+
 import { AR_CONFIG } from '../ar-config';
 
 AFRAME.registerComponent('locar-camera-custom', {
     init(this: any) {
+        const THREE = AFRAME.THREE;
         const scene = this.el.sceneEl.object3D;
         const camera = this.el.getObject3D('camera');
 
@@ -32,6 +34,26 @@ AFRAME.registerComponent('locar-camera-custom', {
             });
 
             if (!this.hasPosition) {
+                const lat = event.position.coords.latitude;
+                const lon = event.position.coords.longitude;
+
+                const calibrationBoxes = [
+                    { latDis: 0.0005, lonDis: 0, color: 0xff0000 },
+                    { latDis: -0.0005, lonDis: 0, color: 0xffff00 },
+                    { latDis: 0, lonDis: -0.0005, color: 0x00ffff },
+                    { latDis: 0, lonDis: 0.0005, color: 0x00ff00 },
+                ];
+
+                const geom = new THREE.BoxGeometry(10, 10, 10);
+
+                calibrationBoxes.forEach(box => {
+                    const mesh = new THREE.Mesh(
+                        geom,
+                        new THREE.MeshBasicMaterial({ color: box.color })
+                    );
+                    this.locar.add(mesh, lon + box.lonDis, lat + box.latDis);
+                });
+
                 this.el.emit('gps-initial-position-determined', event);
                 this.hasPosition = true;
             }
