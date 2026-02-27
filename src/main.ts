@@ -13,7 +13,6 @@ import './engine-ar/components/locar-entity-place';
 
 import './engine-ar/components/place-marker.js';
 import './engine-ar/components/occluder-component.js';
-import './engine-ar/systems/route-system.js';
 import './engine-ar/systems/stability-system.js';
 import './engine-ar/systems/poi-manager.js';
 

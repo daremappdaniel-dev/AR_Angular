@@ -82,8 +82,6 @@ export class ArScreenComponent implements AfterViewInit {
     const sceneEl = (this.graphics as any).sceneRef?.nativeElement;
     if (!sceneEl) return;
 
-    (globalThis as any).__arRouteSegments = this.poiService.visibleRouteSegments();
-
     const poiManager = sceneEl.systems['poi-manager'];
     poiManager?.setMarkers(pois);
   }

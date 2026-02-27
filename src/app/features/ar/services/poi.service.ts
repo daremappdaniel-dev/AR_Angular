@@ -36,41 +36,4 @@ export class PoiService {
     readonly visiblePois = computed(() =>
         this.poisWithDistance().filter(poi => poi.isVisible)
     );
-
-    readonly routeSegments = computed(() => {
-        const pois = this.poisResource()
-            .filter(p => p.routeOrder !== undefined)
-            .sort((a, b) => (a.routeOrder ?? 0) - (b.routeOrder ?? 0));
-
-        const segments = [];
-        for (let i = 0; i < pois.length - 1; i++) {
-            segments.push({
-                start: pois[i],
-                end: pois[i + 1],
-                segmentIndex: i
-            });
-        }
-        return segments;
-    });
-
-    readonly visibleRouteSegments = computed(() => {
-        const userPos = this.state.userPosition();
-        if (!userPos) return [];
-
-        const allSegments = this.routeSegments();
-        const maxDistance = this.config.visibilityRadius;
-
-        return allSegments.filter(segment => {
-            const distToStart = GeoUtils.haversine(
-                userPos.lat, userPos.lng,
-                segment.start.lat, segment.start.lng
-            );
-            const distToEnd = GeoUtils.haversine(
-                userPos.lat, userPos.lng,
-                segment.end.lat, segment.end.lng
-            );
-
-            return distToStart <= maxDistance || distToEnd <= maxDistance;
-        });
-    });
 }
