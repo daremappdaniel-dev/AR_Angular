@@ -24,15 +24,4 @@ export class PermissionsService {
         return true;
     }
 
-    async checkGeolocationPermission(): Promise<boolean> {
-        if (!navigator.geolocation) throw new Error('GPS_UNAVAILABLE');
-
-        return new Promise((resolve, reject) =>
-            navigator.geolocation.getCurrentPosition(
-                () => resolve(true),
-                reject,
-                { enableHighAccuracy: true, timeout: 5000 }
-            )
-        );
-    }
 }

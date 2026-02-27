@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, ElementRef, ViewChild, NgZone, CUSTOM_ELEMENTS_SCHEMA, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GpsService } from '../../../core/services/sensors/gps.service';
 import { ArStateService } from '../services/ar-state.service';
 import { AR_CONFIG } from '../../../../engine-ar/ar-config';
 
@@ -76,33 +75,18 @@ import { AR_CONFIG } from '../../../../engine-ar/ar-config';
 })
 export class ArGraphicsComponent {
   protected readonly state = inject(ArStateService);
-  private readonly gps = inject(GpsService);
   private readonly ngZone = inject(NgZone);
 
   @ViewChild('scene') public sceneRef!: ElementRef;
   @ViewChild('camera') cameraRef!: ElementRef;
   @ViewChild('videoElement') videoRef!: ElementRef<HTMLVideoElement>;
 
-  protected readonly gpsCoords = computed(() => {
-    const pos = this.gps.currentPosition();
-    const val = pos ? `${pos.lng},${pos.lat},0,0` : '';
-    console.log('[Angular GPS Output a LocAR]', val);
-    return val;
-  });
 
   protected readonly occluderConfig = `width: ${AR_CONFIG.OCCLUDER.GEOMETRY[0]}; height: ${AR_CONFIG.OCCLUDER.GEOMETRY[1]}; depth: ${AR_CONFIG.OCCLUDER.GEOMETRY[2]}`;
 
   constructor() {
-    this.monitorearGps();
     this.iniciarBucleSeguimiento();
   }
-
-  private monitorearGps(): void {
-    effect(() => {
-      this.state.updateGpsAccuracy(this.gps.accuracy());
-    });
-  }
-
 
 
   private iniciarBucleSeguimiento(): void {

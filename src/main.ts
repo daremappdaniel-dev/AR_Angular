@@ -13,12 +13,4 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 
-import { MockGeolocation } from './app/core/utils/mock-geolocation';
-
-const ENABLE_MOCK_GPS = false;
-
-if (ENABLE_MOCK_GPS) {
-    MockGeolocation.install();
-}
-
 await bootstrapApplication(AppComponent, appConfig);
