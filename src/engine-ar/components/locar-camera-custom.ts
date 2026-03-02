@@ -24,18 +24,22 @@ AFRAME.registerComponent('locar-camera-custom', {
         this.hasPosition = false;
 
         this.locar.on('gpsupdate', (event: any) => {
-            const latFilt = event.position?.coords?.latitude ?? 'N/A';
-            const lonFilt = event.position?.coords?.longitude ?? 'N/A';
 
-            console.warn(`[LocAR OUT] ACEPTADO Dist: ${event.distMoved.toFixed(2)}m (Rebote si >20m en instantes) | Lat ${latFilt}, Lon ${lonFilt}`);
+            if (!event.position?.coords || event.distMoved > 1000000) {
+                console.warn('[GPS-GUARD] Evento ignorado: Datos incompletos o distancia imposible.');
+                return;
+            }
 
-            document.querySelectorAll('[place-marker]').forEach((marker: any) => {
-                console.log(`[LocAR 3D DISTANCIA] A "${marker.id}": ${marker.object3D?.position.distanceTo(camera.position).toFixed(1)}m`);
-            });
+            const latFilt = event.position.coords.latitude;
+            const lonFilt = event.position.coords.longitude;
+
+            console.warn(`[LocAR OUT] ACEPTADO Dist: ${event.distMoved.toFixed(2)}m | Lat ${latFilt}, Lon ${lonFilt}`);
 
             if (!this.hasPosition) {
-                const lat = event.position.coords.latitude;
-                const lon = event.position.coords.longitude;
+                const coords = event.position?.coords;
+                if (!coords) return;
+                const lat = coords.latitude;
+                const lon = coords.longitude;
 
                 const calibrationBoxes = [
                     { latDis: 0.0005, lonDis: 0, color: 0xff0000 },
@@ -59,12 +63,14 @@ AFRAME.registerComponent('locar-camera-custom', {
             }
 
             queueMicrotask(() => {
+                const coords = event.position?.coords;
+                if (!coords) return;
                 globalThis.dispatchEvent(new CustomEvent(AR_CONFIG.EVENTS.GPS_UPDATE, {
                     detail: {
                         distMoved: event.distMoved,
-                        lat: event.position.coords.latitude,
-                        lng: event.position.coords.longitude,
-                        accuracy: event.position.coords.accuracy
+                        lat: coords.latitude,
+                        lng: coords.longitude,
+                        accuracy: coords.accuracy
                     }
                 }));
             });

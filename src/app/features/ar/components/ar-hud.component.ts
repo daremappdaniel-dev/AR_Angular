@@ -5,6 +5,13 @@ import { PoiService } from '../services/poi.service';
 import { ToastComponent } from '../../../shared/ui/toast/toast.component';
 import { AR_TEXT } from '../../../core/constants/ui-resources';
 
+const CARDINAL_DIRECTIONS = [
+  { name: 'NORTE', symbol: '↑', expected: 0, color: '#ff4444' },
+  { name: 'ESTE', symbol: '→', expected: 90, color: '#44ff44' },
+  { name: 'SUR', symbol: '↓', expected: 180, color: '#ffff44' },
+  { name: 'OESTE', symbol: '←', expected: 270, color: '#44ffff' },
+];
+
 @Component({
   selector: 'app-ar-hud',
   standalone: true,
@@ -22,7 +29,18 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
           <span>{{ cameraYLabel() }}</span>
           <span>{{ AR_TEXT.POI_COUNT }}{{ poiService.visiblePois().length }}</span>
           <span style="color:#00e5ff">FIXES OK: {{ fixesAceptados() }}</span>
-          <button class="calibration-btn" (click)="medirDesviacion()">MEDIR BRUJULA</button>
+        </div>
+
+        <div class="compass-panel">
+          <div class="compass-direction" [style.color]="compassInfo().color">
+            {{ compassInfo().symbol }} {{ compassInfo().name }}
+          </div>
+          <div class="compass-row">
+            <span>α {{ compassInfo().alpha }}°</span>
+            <span class="compass-deviation" [class.ok]="compassInfo().deviationAbs < 5" [class.warn]="compassInfo().deviationAbs >= 5 && compassInfo().deviationAbs < 15" [class.bad]="compassInfo().deviationAbs >= 15">
+              desv {{ compassInfo().deviation }}°
+            </span>
+          </div>
         </div>
       </div>
       
@@ -69,17 +87,30 @@ import { AR_TEXT } from '../../../core/constants/ui-resources';
       font-size: 0.75rem;
       text-shadow: 1px 1px 2px black;
     }
-    .calibration-btn {
-      pointer-events: auto;
-      margin-top: 8px;
-      padding: 6px 14px;
-      background: rgba(0,0,0,0.7);
-      color: #fff;
-      border: 1px solid #fff;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      cursor: pointer;
+    .compass-panel {
+      background: rgba(0,0,0,0.65);
+      border-radius: 10px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      align-self: flex-start;
+      backdrop-filter: blur(4px);
     }
+    .compass-direction {
+      font-size: 1rem;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+    }
+    .compass-row {
+      display: flex;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: #ccc;
+    }
+    .compass-deviation.ok   { color: #4caf50; }
+    .compass-deviation.warn { color: #ffeb3b; }
+    .compass-deviation.bad  { color: #f44336; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -89,7 +120,7 @@ export class ArHudComponent {
   protected readonly AR_TEXT = AR_TEXT;
 
   protected readonly fixesAceptados = signal(0);
-  private compassAlpha = 0;
+  private readonly compassAlpha = signal(0);
 
   constructor() {
     globalThis.addEventListener('locar-gps-update', (e: Event) => {
@@ -100,14 +131,28 @@ export class ArHudComponent {
     });
 
     globalThis.addEventListener('deviceorientationabsolute', (e: any) => {
-      this.compassAlpha = e.alpha ?? 0;
+      this.compassAlpha.set(e.alpha ?? 0);
     });
   }
 
-  protected medirDesviacion(): void {
-    console.warn(`[BRUJULA] Alpha: ${this.compassAlpha.toFixed(1)}deg | Desviacion Norte esperada: 0deg`);
-  }
+  protected readonly compassInfo = computed(() => {
+    const alpha = this.compassAlpha();
 
+    const closest = CARDINAL_DIRECTIONS.reduce((prev, curr) => {
+      const prevDiff = Math.abs(((alpha - prev.expected + 540) % 360) - 180);
+      const currDiff = Math.abs(((alpha - curr.expected + 540) % 360) - 180);
+      return currDiff < prevDiff ? curr : prev;
+    });
+
+    const deviation = Math.round(((alpha - closest.expected + 540) % 360) - 180);
+
+    return {
+      ...closest,
+      alpha: Math.round(alpha),
+      deviation,
+      deviationAbs: Math.abs(deviation)
+    };
+  });
 
   protected readonly statusLabel = computed(() => {
     const acc = this.state.gpsAccuracy();
