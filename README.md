@@ -178,3 +178,12 @@ https://ar-js-org.github.io/AR.js-Docs/
 
 https://ar-js-org.github.io/AR.js-Docs/location-based/
 
+# Issues realcionadas desde 2021:
+
+- https://github.com/AR-js-org/AR.js/issues/302#event-6220396703
+- https://github.com/AR-js-org/AR.js/issues/590
+- https://github.com/AR-js-org/AR.js/pull/661
+- https://github.com/AR-js-org/locar.js/issues/18
+- https://github.com/AR-js-org/locar.js/issues/28
+- https://github.com/AR-js-org/locar.js/issues/11
+
