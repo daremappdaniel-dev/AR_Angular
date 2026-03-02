@@ -133,7 +133,7 @@ Resumen general de viabilidad
 
 | Aspecto                             | Correcto | Mejorable | Bloqueante |
 | :---------------------------------- | :------: | :-------: | :--------: |
-| Precisión de orientación (brújula)  |          |     X     |            |
+| Precisión de orientación (brújula)  |          |           |      X     |
 | Precisión de posición (GPS)         |    X     |           |            |
 | Estabilidad de los POIs             |          |     X     |            |
 | Consumo de batería                  |    X     |           |            |
