@@ -3,5 +3,15 @@ export interface PointOfInterest {
     readonly lat: number;
     readonly lng: number;
     readonly model: string;
-    readonly routeOrder?: number;
+}
+
+export interface PoiView extends PointOfInterest {
+    readonly id: string;
+    readonly label: string;
+    readonly distance: number;
+    readonly isVisible: boolean;
+    readonly screenPosition: {
+        readonly x: number;
+        readonly y: number;
+    };
 }

@@ -65,3 +65,6 @@ key.pem
 cert.pem
 generate-ssl.js
 
+# SSL Generation Script
+generate-ssl.js
+

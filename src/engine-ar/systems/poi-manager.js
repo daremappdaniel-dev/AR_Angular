@@ -10,6 +10,7 @@ AFRAME.registerSystem('poi-manager', {
         const scene = this.el;
 
         allPois.forEach((poi) => {
+            console.log(`%c[MOVIL POI] ${poi.name}: ${poi.lat.toFixed(6)}, ${poi.lng.toFixed(6)}`, "color: cyan");
             const id = `poi-${poi.name}`;
 
             const entity = document.createElement('a-entity');

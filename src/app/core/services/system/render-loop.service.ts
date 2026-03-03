@@ -1,4 +1,5 @@
 import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
+import { ERROR_MESSAGES } from '../../constants/ui-resources';
 
 @Injectable({
     providedIn: 'root'
@@ -35,7 +36,7 @@ export class RenderLoopService implements OnDestroy {
                     try {
                         cb(time);
                     } catch (error) {
-                        console.error('Error in render loop callback:', error);
+                        console.error(ERROR_MESSAGES.RENDER_LOOP, error);
                     }
                 });
 

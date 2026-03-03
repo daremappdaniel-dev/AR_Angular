@@ -1,4 +1,17 @@
 export const AR_CONFIG = {
+    GPS: {
+        MIN_DISTANCE: 5,
+        MIN_ACCURACY: 100,
+        ELEVATION: 1.6
+    },
+    ORIENTATION: {
+        SMOOTHING_FACTOR: 0.1,
+        CHANGE_THRESHOLD: 0.02,
+        ENABLE_PERMISSION_DIALOG: false
+    },
+    EVENTS: {
+        GPS_UPDATE: 'locar-gps-update'
+    },
     MARKER: {
         NEAR_THRESHOLD: 50,
         DEFAULT_NAME: 'Lugar Desconocido',
@@ -11,7 +24,7 @@ export const AR_CONFIG = {
         DEFAULT_MODEL_PATH: './assets/daremapp/marcador.png'
     },
     SYSTEM: {
-        LOCAR_CAMERA_SELECTOR: '[locar-camera]',
+        LOCAR_CAMERA_SELECTOR: '[locar-camera-custom]',
         LOOK_AT_TARGET: '[camera]'
     },
     COMPONENTS: {
@@ -29,7 +42,8 @@ export const AR_CONFIG = {
     },
     FADE: {
         START: 40,
-        END: 50
+        END: 50,
+        BASE_SCALE: 5
     },
     OCCLUDER: {
         GEOMETRY: [20, 10, 2],
@@ -45,7 +59,6 @@ export const AR_CONFIG = {
     },
     POI: {
         DEFAULT_MODEL: './assets/daremapp/marcador.png',
-        GPS_MIN_DISTANCE: 5,
         POLLING_INTERVAL: 3000,
         TRIGGER_DISTANCE: 20
     }
